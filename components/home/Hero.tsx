@@ -1,30 +1,71 @@
-// src/components/home/Hero.tsx
+// components/home/Hero.tsx
 //
-// Server Component — bez "use client".
+// Hero z wbudowanym wideo tła — BackgroundVideo scalony do tego pliku.
+// Konsekwencja: cały hero jest komponentem klienckim. Jeden plik nie może
+// mieszać granicy serwer/klient, więc H1, akapit i przyciski też trafiają
+// do bundla i podlegają hydracji. Jeśli kiedyś LCP na komórce zacznie
+// uwierać, wydzielenie samego <video> z powrotem cofa ten koszt.
 //
-// Najważniejsza zmiana: H1 przestał być samym mottem.
-// Wedle brandbooka "Z pasji do muzyki" to motto, nie nagłówek. Zostaje
-// jako dominujący element wizualny, ale nagłówek niesie teraz nazwę
-// i lokalizację. Bez tego strona główna nie ma się o co zaczepić
-// w wyszukiwarce, a marka "Maxime" koliduje z Orkiestrą Maximus
-// i dwiema Fundacjami Maxima.
-//
-// Świadomie NIE użyłem sr-only do wciśnięcia fraz: tekst ukryty przed
-// użytkownikiem, a widoczny dla Google, to ryzyko, którego nie warto
-// brać na stronie mającej rankować latami.
+// Nagłówek: "Z pasji do muzyki" to wedle brandbooka motto, nie tytuł.
+// Zostaje dominantą wizualną, ale H1 niesie też nazwę i miasto — bez tego
+// strona główna nie ma się o co zaczepić w wyszukiwarce, a marka "Maxime"
+// koliduje z Orkiestrą Maximus i dwiema Fundacjami Maxima.
+
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
-import BackgroundVideo from "./BackgroundVideo";
+type NetworkInformation = { saveData?: boolean };
 
 export default function Hero() {
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Wideo dociągane po załadowaniu strony, żeby nie konkurowało
+  // o pasmo z plakatem, który jest elementem LCP.
+  useEffect(() => {
+    const connection = (
+      navigator as Navigator & { connection?: NetworkInformation }
+    ).connection;
+    if (connection?.saveData) return;
+
+    const load = () => {
+      const isMobile = window.matchMedia("(max-width: 767px)").matches;
+      setVideoSrc(isMobile ? "/bg-video-mobile.mp4" : "/bg-video.mp4");
+    };
+
+    const schedule = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(load, { timeout: 2000 });
+      } else {
+        window.setTimeout(load, 800);
+      }
+    };
+
+    if (document.readyState === "complete") {
+      schedule();
+      return;
+    }
+
+    window.addEventListener("load", schedule, { once: true });
+    return () => window.removeEventListener("load", schedule);
+  }, []);
+
+  // Autoodtwarzanie bywa ignorowane, gdy src pojawia się po hydracji.
+  useEffect(() => {
+    if (!videoSrc) return;
+    videoRef.current?.play().catch(() => {
+      // Odrzucenie (np. tryb oszczędzania energii) zostawia sam plakat.
+    });
+  }, [videoSrc]);
+
   return (
     <section className="bg-raisinBlack relative flex min-h-svh w-full items-center justify-center overflow-hidden">
       <div className="absolute inset-0 h-full w-full">
-        {/* Plakat jest elementem LCP — ładowany priorytetowo z serwera.
-            alt pusty, bo obraz jest czysto dekoracyjny; opis sceny
-            powtarzałby treść nagłówka. */}
+        {/* Element LCP. alt pusty, bo obraz jest dekoracyjny —
+            opis sceny powtarzałby treść nagłówka. */}
         <Image
           src="/video-poster.webp"
           alt=""
@@ -36,7 +77,20 @@ export default function Hero() {
           className="object-cover"
         />
 
-        <BackgroundVideo />
+        {videoSrc && (
+          <video
+            ref={videoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            aria-hidden="true"
+            tabIndex={-1}
+            className="animate-cinematic-zoom absolute inset-0 h-full w-full object-cover"
+            src={videoSrc}
+          />
+        )}
 
         <div className="bg-raisinBlack/30 absolute inset-0 mix-blend-multiply" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(38,38,38,0.85)_100%)]" />
@@ -73,15 +127,15 @@ export default function Hero() {
           style={{ animationDelay: "300ms" }}
         >
           {/* Pierwsze CTA prowadzi do oferty, czyli do jedynej strony,
-              która zarabia. "Zobacz wydarzenia" nie mówiło, co się stanie. */}
+              która zarabia. */}
           <Link
             href="/oferta"
             className="group bg-arylideYellow font-montserrat text-raisinBlack relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase transition-all duration-700 hover:scale-[1.03] hover:shadow-[0_0_30px_-10px_rgba(239,203,111,0.6)] sm:w-auto sm:px-12"
           >
             <span className="relative z-10 flex items-center gap-3">
               Zamów oprawę muzyczną
-              {/* aria-hidden zamiast <title>Strzałka</title> — poprzednio
-                  czytnik ekranu odczytywał "Zobacz wydarzenia Strzałka". */}
+              {/* aria-hidden zamiast <title> — inaczej czytnik ekranu
+                  odczytuje "Zamów oprawę muzyczną Strzałka". */}
               <svg
                 aria-hidden="true"
                 focusable="false"
