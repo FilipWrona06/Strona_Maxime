@@ -1,25 +1,30 @@
-// src/app/sitemap.ts
+// app/sitemap.ts
 
 import type { MetadataRoute } from "next";
 
-import { siteUrl, staticRoutes } from "@/data/site";
+import { isIndexable, siteUrl, staticRoutes } from "@/data/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
+  // Wersja robocza nie wystawia mapy — robots.ts też jej wtedy nie podaje,
+  // więc oba pliki mówią to samo.
+  if (!isIndexable) return [];
 
+  // lastModified świadomie pominięte dla stron statycznych. Data z momentu
+  // builda znaczyłaby, że regulamin i kontakt zmieniają się przy każdym
+  // wdrożeniu — po kilku cyklach Google przestaje wierzyć temu polu,
+  // a właśnie przy wydarzeniach będzie ono potrzebne.
   const pages: MetadataRoute.Sitemap = staticRoutes.map((route) => ({
     url: `${siteUrl}${route.path}`,
-    lastModified: now,
     changeFrequency: route.changeFrequency,
     priority: route.priority,
   }));
 
-  // Po podpięciu Sanity dokleić tutaj wpisy dynamiczne:
+  // Po podpięciu CMS dokleić wpisy dynamiczne — tam lastModified ma sens,
+  // bo pochodzi z realnej daty edycji:
   //
-  // const events = await client.fetch(groq`*[_type == "event"]{ slug, _updatedAt }`);
   // pages.push(...events.map((e) => ({
-  //   url: `${siteUrl}/wydarzenia/${e.slug.current}`,
-  //   lastModified: new Date(e._updatedAt),
+  //   url: `${siteUrl}/wydarzenia/${e.slug}`,
+  //   lastModified: new Date(e.updatedAt),
   //   changeFrequency: "monthly" as const,
   //   priority: 0.7,
   // })));
