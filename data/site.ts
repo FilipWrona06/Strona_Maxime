@@ -12,18 +12,76 @@ export const siteUrl = (
  *  Na Vercelu trzymamy false aż do przenosin. */
 export const isIndexable = process.env.NEXT_PUBLIC_INDEXABLE === "true";
 
+/* ───────────────────────────── Socjale ───────────────────────────── */
+
+/** X usunięty — Maxime nie ma tam profilu. */
+export type SocialPlatform =
+  | "facebook"
+  | "instagram"
+  | "youtube"
+  | "linkedin"
+  | "patronite"
+  | "tiktok";
+
+export type Social = {
+  platform: SocialPlatform;
+  url: string;
+  /** Etykieta dla czytników ekranu — sam kształt ikony nic im nie mówi. */
+  label: string;
+};
+
+export const socials: Social[] = [
+  {
+    platform: "facebook",
+    url: "https://www.facebook.com/stowarzyszeniemaxime/",
+    label: "Maxime na Facebooku",
+  },
+  {
+    platform: "instagram",
+    url: "https://www.instagram.com/maxime.orchestra/",
+    label: "Maxime na Instagramie",
+  },
+  {
+    platform: "youtube",
+    url: "https://www.youtube.com/@stowarzyszeniemaxime",
+    label: "Maxime na YouTube",
+  },
+  {
+    platform: "tiktok",
+    url: "https://www.tiktok.com/@maxime.orchestra",
+    label: "Maxime na TikToku",
+  },
+  {
+    platform: "linkedin",
+    url: "https://www.linkedin.com/company/stowarzyszenie-maxime/",
+    label: "Maxime na LinkedIn",
+  },
+  {
+    platform: "patronite",
+    url: "https://patronite.pl/stowarzyszeniemaxime",
+    label: "Wesprzyj Maxime na Patronite",
+  },
+];
+
+/** Idzie do sameAs w JSON-LD. Sześć potwierdzonych profili to mocny
+ *  sygnał tożsamości marki — przydatny zwłaszcza przy kolizji nazwy
+ *  z Orkiestrą Maximus i dwiema Fundacjami Maxima. */
+export const socialUrls = socials.map((s) => s.url);
+
+const patronite = socials.find((s) => s.platform === "patronite");
+
 /* ───────────────────────────── Organizacja ───────────────────────────── */
 
 export const site = {
-  /** Nazwa publiczna. Świadomie "Orkiestra Maxime", nie samo "Maxime":
-   *  w wynikach kolidujemy z Orkiestrą Maximus, Fundacją Maxima
-   *  i Fundacją Maxima Dzieciom. */
+  /** Nazwa publiczna. Świadomie "Orkiestra Maxime", nie samo "Maxime". */
   name: "Orkiestra Maxime",
   shortName: "Maxime",
   motto: "Z pasji do muzyki",
 
   /** DO DECYZJI U KLIENTA: fundacja czy stowarzyszenie?
-   *  Ta nazwa idzie do metadanych, JSON-LD, copyrightu i klauzuli RODO. */
+   *  Uwaga: wszystkie profile społecznościowe są podpisane jako
+   *  "Stowarzyszenie Maxime", więc jeśli podmiotem ma być fundacja,
+   *  warto to ujednolicić także tam. */
   legalName: "Fundacja Maxime",
 
   title: "Orkiestra Maxime — oprawa muzyczna wydarzeń | Dąbrowa Górnicza",
@@ -78,15 +136,15 @@ export const site = {
 
   foundingDate: "2022",
 
-  /** Podpis wykonawcy w stopce. Ustaw na null, żeby go nie renderować. */
+  /** Podpis wykonawcy w stopce. Pusta nazwa = nie renderuje się. */
   author: {
     name: "",
     url: "",
   },
 
-  /** Cel przycisku "Wesprzyj nas". Dopóki nie ma Patronite
-   *  ani podstrony zbiórki — kotwica na "O nas". */
-  supportUrl: "/o-nas#wesprzyj",
+  /** Cel przycisku "Wesprzyj nas" — teraz Patronite.
+   *  Navbar sam wykryje adres zewnętrzny i doda target="_blank". */
+  supportUrl: patronite?.url ?? "/o-nas#wesprzyj",
 } as const;
 
 /** Rok liczony przy wywołaniu, nie przy imporcie modułu.
@@ -136,11 +194,8 @@ export function isActiveLink(pathname: string, link: NavLink): boolean {
 }
 
 /** JEDEN efekt linku nawigacyjnego dla całego serwisu: podkreślenie
- *  wyjeżdżające od środka plus zmiana koloru. Wcześniej nagłówek miał
- *  podkreślenie, a menu mobilne i stopka kropkę z przesunięciem —
- *  trzy różne zachowania dla tej samej czynności.
- *
- *  Rozmiar tekstu ustala miejsce użycia, zachowanie jest wspólne. */
+ *  wyjeżdżające od środka plus zmiana koloru. Rozmiar tekstu ustala
+ *  miejsce użycia, zachowanie jest wspólne. */
 export const navLink = {
   wrapper:
     "group font-montserrat relative inline-block transition-colors duration-300",
@@ -153,38 +208,6 @@ export const navLink = {
       active ? "w-full" : "w-0 group-hover:w-full"
     }`,
 };
-
-/* ───────────────────────────── Socjale ───────────────────────────── */
-
-export type SocialPlatform =
-  | "facebook"
-  | "instagram"
-  | "youtube"
-  | "linkedin"
-  | "patronite"
-  | "tiktok"
-  | "x";
-
-export type Social = {
-  platform: SocialPlatform;
-  url: string;
-  /** Etykieta dla czytników ekranu. */
-  label: string;
-};
-
-/** Tylko realnie istniejące profile. Sześć ikon prowadzących w jedno
- *  miejsce na Facebooku osłabia sygnał marki. */
-export const socials: Social[] = [
-  {
-    platform: "facebook",
-    url: "https://www.facebook.com/stowarzyszeniemaxime/",
-    label: "Orkiestra Maxime na Facebooku",
-  },
-  // { platform: "instagram", url: "", label: "Orkiestra Maxime na Instagramie" },
-  // { platform: "youtube",   url: "", label: "Orkiestra Maxime na YouTube" },
-];
-
-export const socialUrls = socials.map((s) => s.url);
 
 /* ───────────────────────────── Trasy ───────────────────────────── */
 
