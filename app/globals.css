@@ -1,4 +1,4 @@
-/* src/app/globals.css */
+/* app/globals.css */
 @import "tailwindcss";
 
 @theme {
@@ -7,14 +7,8 @@
   --color-philippineSilver: #b2b2b2;
   --color-arylideYellow: #efcb6f;
   --color-oxfordBlue: #001c48;
-
-  /* Fonty */
   --font-montserrat: var(--font-montserrat);
   --font-youngest: var(--font-youngest);
-
-  /* Tailwind v4 nie zna duration-1200 — deklarujemy token,
-     zamiast pisać duration-[1200ms] w komponentach. */
-  --transition-duration-1200: 1200ms;
 
   /* Animacje */
   --animate-fade-in-up: fade-in-up 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -36,20 +30,14 @@ html {
 }
 
 /* Widoczny fokus klawiatury w kolorze marki.
-   Na ciemnym tle domyślny outline przeglądarki bywa niewidoczny,
-   a bez tego nawigacja Tabem po serwisie jest niemożliwa. */
+   Na ciemnym tle domyślny outline przeglądarki bywa niewidoczny.
+
+   BEZ border-radius: ta właściwość zaokrągla ELEMENT, nie obrys —
+   ustawiona tutaj prostowałaby okrągłe przyciski w chwili fokusu.
+   Obrys i tak podąża za kształtem elementu. */
 :focus-visible {
   outline: 2px solid var(--color-arylideYellow);
   outline-offset: 3px;
-  border-radius: 2px;
-}
-
-/* Płynne skalowanie hero na niskich ekranach mobilnych.
-   100svh zamiast 100vh — pasek adresu przeglądarki nie ucina treści. */
-@supports (height: 100svh) {
-  .min-h-screen-safe {
-    min-height: 100svh;
-  }
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -111,38 +99,5 @@ html {
   100% {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-/* Ten sam problem przy wyłączonym JavaScripcie: komponent FadeIn
-   startuje z opacity-0 i odsłania treść dopiero po IntersectionObserver.
-   Bez JS treść zostałaby niewidoczna. */
-@media (scripting: none) {
-  [data-fade-in] {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Druk — dyrektorzy domów kultury i event managerowie
-   realnie drukują strony ofertowe do teczki przetargowej.
-   ───────────────────────────────────────────────────────────── */
-
-@media print {
-  header,
-  footer,
-  [data-no-print] {
-    display: none !important;
-  }
-
-  body {
-    background: #fff !important;
-    color: #000 !important;
-  }
-
-  a[href^="http"]::after {
-    content: " (" attr(href) ")";
-    font-size: 0.8em;
   }
 }

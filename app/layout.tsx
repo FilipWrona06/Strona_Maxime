@@ -8,6 +8,8 @@
 //  - klas motywu (bg-raisinBlack / text-white) → też w (user), dzięki czemu
 //    dołożenie osobnej grupy tras (panel treści) nie wymaga ich odplątywania
 //  - JSON-LD organizacji → to treść strony publicznej
+//  - alternates.canonical → metadane są dziedziczone, więc canonical
+//    w roocie wskazywałby wszystkie podstrony na stronę główną
 //  - deklaracji ikon i grafiki OG → załatwiają je pliki w app/,
 //    patrz komentarz na dole
 
@@ -32,6 +34,9 @@ if (
   );
 }
 
+// Nazwy zmiennych CSS celowo INNE niż klucze w @theme (globals.css).
+// Gdyby były takie same, powstałby cykl --font-montserrat: var(--font-montserrat),
+// czyli wartość nieprawidłowa w :root.
 const montserrat = Montserrat({
   subsets: ["latin", "latin-ext"],
   variable: "--font-montserrat",
@@ -69,6 +74,7 @@ export const metadata: Metadata = {
   publisher: site.legalName,
 
   // meta keywords usunięte — Google ignoruje ten tag od 2009 roku.
+  // alternates.canonical ustawia KAŻDA strona osobno w swoim page.tsx.
 
   robots: isIndexable
     ? {
@@ -130,10 +136,7 @@ export default function RootLayout({
      app/icon.svg              sygnet "M" z brandbooka (favicon)
      app/apple-icon.png        180×180, sygnet na tle #262626
      app/opengraph-image.jpg   1200×630, miniatura do social i maili
-     app/manifest.ts           nazwa, kolory, ikony — sygnał dla wyników mobilnych
+     app/manifest.ts           nazwa, kolory, ikony
      app/not-found.tsx         własna strona 404
      app/error.tsx             obsługa błędów renderowania
-
-   Po ich dodaniu USUŃ z public/: favicon.ico (jeśli jest) — inaczej
-   przeglądarka i tak pobierze go z korzenia domeny.
    ───────────────────────────────────────────────────────────────────── */
