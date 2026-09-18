@@ -171,3 +171,14 @@ export const staticRoutes = [
   { path: "/polityka-prywatnosci", priority: 0.2, changeFrequency: "yearly" },
   { path: "/regulamin", priority: 0.2, changeFrequency: "yearly" },
 ] as const;
+
+/** Czy dany link odpowiada bieżącej trasie.
+ *  Czysta funkcja — bez Reacta, więc mogą jej używać zarówno
+ *  komponenty klienckie (Navbar), jak i serwerowe. */
+export function isActiveLink(pathname: string, link: NavLink): boolean {
+  if (link.path === "/") return pathname === "/";
+  if (link.matchNested) {
+    return pathname === link.path || pathname.startsWith(`${link.path}/`);
+  }
+  return pathname === link.path;
+}

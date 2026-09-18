@@ -1,11 +1,12 @@
 // components/layout/Navbar.tsx
 //
-// Zmiany względem poprzedniej wersji:
-//  - import z @/data/site zamiast nieistniejącego @/data/navigation
-//  - logo brane z konfiguracji: dopóki nie ma białego eksportu
-//    z brandbooka, site.logo.invert nakłada filtr na czarne logo.svg
-//  - useCallback usunięty — przy reactCompiler: true kompilator
-//    memoizuje sam, a ręczne opakowania tylko zaciemniają kod
+// Wersja bez komponentu ActiveLinks — logika podświetlania jest teraz
+// wbudowana. Nic nie zostało utracone: podświetlenie bieżącej strony,
+// obsługa tras zagnieżdżonych (/wydarzenia/nazwa-koncertu podświetla
+// "Wydarzenia") i aria-current="page" działają jak wcześniej.
+//
+// Sam warunek aktywności siedzi w data/site.ts jako czysta funkcja,
+// żeby Footer mógł go użyć bez stawania się komponentem klienckim.
 
 "use client";
 
@@ -14,8 +15,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-import ActiveLinks from "@/components/ui/ActiveLinks";
-import { mainLinks, site } from "@/data/site";
+import { isActiveLink, mainLinks, site } from "@/data/site";
 
 const isExternal = (url: string) => /^https?:\/\//.test(url);
 
@@ -103,8 +103,32 @@ export default function Navbar() {
             />
           </Link>
 
+          {/* Menu desktopowe */}
           <ul className="hidden grow justify-center lg:flex lg:gap-2.5 xl:gap-6 2xl:gap-8">
-            <ActiveLinks links={mainLinks} variant="header" />
+            {mainLinks.map((link) => {
+              const active = isActiveLink(pathname, link);
+              return (
+                <li key={link.path}>
+                  <Link
+                    href={link.path}
+                    aria-current={active ? "page" : undefined}
+                    className={`group font-montserrat relative block py-2 text-[0.75rem] font-medium whitespace-nowrap uppercase transition-colors lg:text-[0.65rem] lg:tracking-widest xl:text-[0.8rem] xl:tracking-[0.15em] ${
+                      active
+                        ? "text-arylideYellow"
+                        : "hover:text-arylideYellow text-white"
+                    }`}
+                  >
+                    {link.name}
+                    <span
+                      aria-hidden="true"
+                      className={`bg-arylideYellow absolute -bottom-1 left-1/2 h-0.5 -translate-x-1/2 transition-all duration-300 ${
+                        active ? "w-full" : "w-0 group-hover:w-full"
+                      }`}
+                    />
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
 
           <div className="hidden shrink-0 lg:ml-4 lg:block xl:ml-8">
@@ -132,9 +156,9 @@ export default function Navbar() {
         </nav>
       </header>
 
+      {/* Menu mobilne */}
       <div
         id="menu-mobilne"
-        // inert wyjmuje zamknięte menu z tabulacji i drzewa dostępności.
         inert={!isMenuOpen}
         className={`fixed inset-0 z-110 flex justify-end transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] lg:hidden ${
           isMenuOpen
@@ -178,12 +202,39 @@ export default function Navbar() {
           </div>
 
           <ul className="flex flex-col gap-6 pt-12">
-            <ActiveLinks
-              links={mainLinks}
-              variant="mobile"
-              isMobileMenuOpen={isMenuOpen}
-              onMobileClick={closeMenu}
-            />
+            {mainLinks.map((link, i) => {
+              const active = isActiveLink(pathname, link);
+              return (
+                <li
+                  key={link.path}
+                  className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                    isMenuOpen
+                      ? "translate-x-0 opacity-100"
+                      : "translate-x-12 opacity-0"
+                  }`}
+                  style={{ transitionDelay: `${150 + i * 75}ms` }}
+                >
+                  <Link
+                    href={link.path}
+                    onClick={closeMenu}
+                    aria-current={active ? "page" : undefined}
+                    className={`group flex items-center gap-4 text-3xl leading-tight tracking-wide transition-all duration-300 ${
+                      active
+                        ? "text-arylideYellow translate-x-2 font-medium"
+                        : "font-light text-white hover:translate-x-2 hover:text-white/80"
+                    }`}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`bg-arylideYellow block rounded-full transition-all duration-300 ${
+                        active ? "h-2.5 w-2.5 opacity-100" : "h-0 w-0 opacity-0"
+                      }`}
+                    />
+                    {link.name}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
 
           <div className="mt-auto pb-8">
