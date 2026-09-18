@@ -110,21 +110,21 @@ export default function Footer() {
             {/* Adres w <address> daje Google jednoznaczny sygnał NAP,
                 a instytucji wszystko, czego potrzebuje do zapytania. */}
             <address className="font-montserrat text-xs leading-relaxed font-light text-white/40 not-italic">
-              {site.legal.foundationName}
+              {site.legal.name}
               <br />
               {site.address.street}
               <br />
               {site.address.postalCode} {site.address.city}
-              {site.legal.foundationKrs && (
+              {site.legal.krs && (
                 <>
                   <br />
-                  KRS {site.legal.foundationKrs}
+                  KRS {site.legal.krs}
                 </>
               )}
-              {site.legal.foundationNip && (
+              {site.legal.nip && (
                 <>
                   <br />
-                  NIP {site.legal.foundationNip}
+                  NIP {site.legal.nip}
                 </>
               )}
             </address>

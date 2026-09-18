@@ -3,6 +3,9 @@
 // Jedno źródło prawdy: domena, organizacja, nawigacja, socjale, trasy.
 // Celowo BEZ JSX — ten plik importują robots.ts, sitemap.ts i blok
 // metadata w root layoucie, więc musi zostać czystym TypeScriptem.
+//
+// Podmiot prowadzący serwis: Fundacja Maxime. Nazwa stowarzyszenia
+// nie występuje w projekcie.
 
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
@@ -14,7 +17,6 @@ export const isIndexable = process.env.NEXT_PUBLIC_INDEXABLE === "true";
 
 /* ───────────────────────────── Socjale ───────────────────────────── */
 
-/** X usunięty — Maxime nie ma tam profilu. */
 export type SocialPlatform =
   | "facebook"
   | "instagram"
@@ -30,6 +32,10 @@ export type Social = {
   label: string;
 };
 
+/** Adresy profili zawierają stare handle (@stowarzyszeniemaxime).
+ *  Nie ruszamy ich — zmiana zrywa istniejące linki, a rozpoznanie marki
+ *  załatwia sameAs w danych strukturalnych. Do zmiany są natomiast
+ *  NAZWY WYŚWIETLANE na tych profilach, po stronie klienta. */
 export const socials: Social[] = [
   {
     platform: "facebook",
@@ -64,8 +70,8 @@ export const socials: Social[] = [
 ];
 
 /** Idzie do sameAs w JSON-LD. Sześć potwierdzonych profili to mocny
- *  sygnał tożsamości marki — przydatny zwłaszcza przy kolizji nazwy
- *  z Orkiestrą Maximus i dwiema Fundacjami Maxima. */
+ *  sygnał tożsamości — przydatny przy kolizji nazwy z Orkiestrą Maximus
+ *  i dwiema Fundacjami Maxima. */
 export const socialUrls = socials.map((s) => s.url);
 
 const patronite = socials.find((s) => s.platform === "patronite");
@@ -73,15 +79,13 @@ const patronite = socials.find((s) => s.platform === "patronite");
 /* ───────────────────────────── Organizacja ───────────────────────────── */
 
 export const site = {
-  /** Nazwa publiczna. Świadomie "Orkiestra Maxime", nie samo "Maxime". */
+  /** Nazwa publiczna — używana w nagłówkach, tytułach i treści. */
   name: "Orkiestra Maxime",
   shortName: "Maxime",
   motto: "Z pasji do muzyki",
 
-  /** DO DECYZJI U KLIENTA: fundacja czy stowarzyszenie?
-   *  Uwaga: wszystkie profile społecznościowe są podpisane jako
-   *  "Stowarzyszenie Maxime", więc jeśli podmiotem ma być fundacja,
-   *  warto to ujednolicić także tam. */
+  /** Podmiot prawny — stopka, regulamin, polityka prywatności,
+   *  klauzule RODO, JSON-LD. */
   legalName: "Fundacja Maxime",
 
   title: "Orkiestra Maxime — oprawa muzyczna wydarzeń | Dąbrowa Górnicza",
@@ -123,17 +127,18 @@ export const site = {
   /** ZWERYFIKOWAĆ przed wdrożeniem. */
   geo: { lat: 50.3216, lng: 19.1874 },
 
-  /** Dane rejestrowe: stopka, kontakt, JSON-LD, klauzula RODO.
-   *  DO UZUPEŁNIENIA: KRS i NIP fundacji. */
+  /** Dane rejestrowe fundacji.
+   *  BLOKADA: bez KRS i NIP nie da się domknąć stopki, regulaminu,
+   *  polityki prywatności ani klauzuli przy formularzu. */
   legal: {
-    associationName: "Stowarzyszenie Maxime",
-    associationKrs: "0000968685",
-    associationNip: "6292503804",
-    foundationName: "Fundacja Maxime",
-    foundationKrs: "",
-    foundationNip: "",
+    name: "Fundacja Maxime",
+    krs: "",
+    nip: "",
+    regon: "",
   },
 
+  /** Rok powstania orkiestry, nie data rejestracji podmiotu.
+   *  Schema opisuje zespół, a ten gra od 2022. */
   foundingDate: "2022",
 
   /** Podpis wykonawcy w stopce. Pusta nazwa = nie renderuje się. */
@@ -142,9 +147,9 @@ export const site = {
     url: "",
   },
 
-  /** Cel przycisku "Wesprzyj nas" — teraz Patronite.
+  /** Cel przycisku "Wesprzyj nas" — Patronite.
    *  Navbar sam wykryje adres zewnętrzny i doda target="_blank". */
-  supportUrl: patronite?.url ?? "/o-nas#wesprzyj",
+  supportUrl: patronite?.url ?? "/kontakt",
 } as const;
 
 /** Rok liczony przy wywołaniu, nie przy imporcie modułu.
