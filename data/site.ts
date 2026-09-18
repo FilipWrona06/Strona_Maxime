@@ -1,17 +1,15 @@
 // data/site.ts
 //
-// Jedno źródło prawdy dla całego serwisu: domena, organizacja, nawigacja,
-// socjale, trasy. Celowo BEZ JSX — ten plik importują robots.ts, sitemap.ts
-// i blok metadata w root layoucie, więc musi zostać czystymi danymi.
-// Ikony socjali są osobno, w components/ui/SocialIcon.tsx.
+// Jedno źródło prawdy: domena, organizacja, nawigacja, socjale, trasy.
+// Celowo BEZ JSX — ten plik importują robots.ts, sitemap.ts i blok
+// metadata w root layoucie, więc musi zostać czystym TypeScriptem.
 
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
 ).replace(/\/$/, "");
 
 /** Czy ta instancja ma trafić do indeksu wyszukiwarek.
- *  Na Vercelu trzymamy false aż do przenosin — inaczej Google
- *  zaindeksuje wersję roboczą i zostaniemy z duplikatami. */
+ *  Na Vercelu trzymamy false aż do przenosin. */
 export const isIndexable = process.env.NEXT_PUBLIC_INDEXABLE === "true";
 
 /* ───────────────────────────── Organizacja ───────────────────────────── */
@@ -24,10 +22,8 @@ export const site = {
   shortName: "Maxime",
   motto: "Z pasji do muzyki",
 
-  /** DO DECYZJI: kto jest podmiotem prowadzącym stronę — fundacja
-   *  powołana w grudniu 2025 czy stowarzyszenie z 2022?
-   *  Ta nazwa idzie do metadanych, JSON-LD, stopki i klauzuli RODO,
-   *  więc musi być jedna w całym serwisie. */
+  /** DO DECYZJI U KLIENTA: fundacja czy stowarzyszenie?
+   *  Ta nazwa idzie do metadanych, JSON-LD, copyrightu i klauzuli RODO. */
   legalName: "Fundacja Maxime",
 
   title: "Orkiestra Maxime — oprawa muzyczna wydarzeń | Dąbrowa Górnicza",
@@ -36,12 +32,15 @@ export const site = {
   description:
     "Orkiestra symfoniczna i kameralna z Dąbrowy Górniczej. Oprawa muzyczna gal, jubileuszy firmowych, ceremonii i koncertów plenerowych na Śląsku i w Zagłębiu. Skład od kwartetu po 40 muzyków.",
 
+  tagline:
+    "Odkryj z nami maksymalną jakość, maksymalne zaangażowanie oraz maksymalną radość z muzyki.",
+
   locale: "pl_PL",
   lang: "pl",
 
-  /** Logo. Dopóki nie ma eksportu białej wersji z brandbooka,
-   *  invert=true nakłada filtr na czarne logo.svg.
-   *  Po wrzuceniu /logo-white.svg: zmień src i ustaw invert na false. */
+  /** Dopóki nie ma białego eksportu z brandbooka, invert nakłada filtr
+   *  na czarne logo.svg. Po wrzuceniu /logo-white.svg: podmień src,
+   *  ustaw invert na false. */
   logo: {
     src: "/logo.svg",
     invert: true,
@@ -63,10 +62,10 @@ export const site = {
     country: "PL",
   },
 
-  /** Współrzędne siedziby — do JSON-LD i mapy na kontakcie. ZWERYFIKOWAĆ. */
+  /** ZWERYFIKOWAĆ przed wdrożeniem. */
   geo: { lat: 50.3216, lng: 19.1874 },
 
-  /** Dane rejestrowe: stopka, strona kontaktu, JSON-LD, klauzula RODO.
+  /** Dane rejestrowe: stopka, kontakt, JSON-LD, klauzula RODO.
    *  DO UZUPEŁNIENIA: KRS i NIP fundacji. */
   legal: {
     associationName: "Stowarzyszenie Maxime",
@@ -79,14 +78,19 @@ export const site = {
 
   foundingDate: "2022",
 
-  /** Cel przycisku "Wesprzyj nas".
-   *  Dopóki nie ma Patronite ani podstrony zbiórki — kotwica na "O nas". */
+  /** Podpis wykonawcy w stopce. Ustaw na null, żeby go nie renderować. */
+  author: {
+    name: "",
+    url: "",
+  },
+
+  /** Cel przycisku "Wesprzyj nas". Dopóki nie ma Patronite
+   *  ani podstrony zbiórki — kotwica na "O nas". */
   supportUrl: "/o-nas#wesprzyj",
 } as const;
 
 /** Rok liczony przy wywołaniu, nie przy imporcie modułu.
- *  Wersja ze stałą pokazywała rok z momentu builda — strona zbudowana
- *  w grudniu wyświetlałaby stary rok przez cały styczeń. */
+ *  Wersja ze stałą pokazywała rok z momentu builda. */
 export const getCopyright = () =>
   `© ${new Date().getFullYear()} ${site.legalName}. Wszelkie prawa zastrzeżone.`;
 
@@ -96,13 +100,12 @@ export type NavLink = {
   name: string;
   path: string;
   /** Podświetlaj też na trasach zagnieżdżonych,
-   *  np. /wydarzenia/fabryka-klasyki-2026 → aktywne "Wydarzenia". */
+   *  np. /wydarzenia/nazwa-koncertu → aktywne "Wydarzenia". */
   matchNested?: boolean;
 };
 
-/** "Strona główna" wycięta z menu — logo po lewej pełni tę samą funkcję
- *  i jest rozpoznawalnym wzorcem. Zwalnia to miejsce na sześć pozycji
- *  zamiast siedmiu, co na laptopie 1280px realnie ratuje układ. */
+/** "Strona główna" wycięta z menu — logo po lewej robi to samo.
+ *  Sześć pozycji zamiast siedmiu ratuje układ na laptopie 1280 px. */
 export const mainLinks: NavLink[] = [
   { name: "O nas", path: "/o-nas" },
   { name: "Oferta", path: "/oferta" },
@@ -122,6 +125,35 @@ export const legalLinks: NavLink[] = [
   { name: "Polityka prywatności", path: "/polityka-prywatnosci" },
 ];
 
+/** Czy dany link odpowiada bieżącej trasie.
+ *  Czysta funkcja — mogą jej używać komponenty klienckie i serwerowe. */
+export function isActiveLink(pathname: string, link: NavLink): boolean {
+  if (link.path === "/") return pathname === "/";
+  if (link.matchNested) {
+    return pathname === link.path || pathname.startsWith(`${link.path}/`);
+  }
+  return pathname === link.path;
+}
+
+/** JEDEN efekt linku nawigacyjnego dla całego serwisu: podkreślenie
+ *  wyjeżdżające od środka plus zmiana koloru. Wcześniej nagłówek miał
+ *  podkreślenie, a menu mobilne i stopka kropkę z przesunięciem —
+ *  trzy różne zachowania dla tej samej czynności.
+ *
+ *  Rozmiar tekstu ustala miejsce użycia, zachowanie jest wspólne. */
+export const navLink = {
+  wrapper:
+    "group font-montserrat relative inline-block transition-colors duration-300",
+
+  color: (active: boolean) =>
+    active ? "text-arylideYellow" : "text-white/70 hover:text-white",
+
+  underline: (active: boolean) =>
+    `bg-arylideYellow absolute -bottom-1 left-1/2 h-px -translate-x-1/2 transition-all duration-300 ${
+      active ? "w-full" : "w-0 group-hover:w-full"
+    }`,
+};
+
 /* ───────────────────────────── Socjale ───────────────────────────── */
 
 export type SocialPlatform =
@@ -136,13 +168,12 @@ export type SocialPlatform =
 export type Social = {
   platform: SocialPlatform;
   url: string;
-  /** Etykieta dla czytników ekranu i atrybutu title. */
+  /** Etykieta dla czytników ekranu. */
   label: string;
 };
 
 /** Tylko realnie istniejące profile. Sześć ikon prowadzących w jedno
- *  miejsce na Facebooku osłabia sygnał marki i wygląda na niedokończoną
- *  stronę. Odkomentuj wpis, gdy konto faktycznie powstanie. */
+ *  miejsce na Facebooku osłabia sygnał marki. */
 export const socials: Social[] = [
   {
     platform: "facebook",
@@ -151,15 +182,12 @@ export const socials: Social[] = [
   },
   // { platform: "instagram", url: "", label: "Orkiestra Maxime na Instagramie" },
   // { platform: "youtube",   url: "", label: "Orkiestra Maxime na YouTube" },
-  // { platform: "patronite", url: "", label: "Wesprzyj nas na Patronite" },
 ];
 
 export const socialUrls = socials.map((s) => s.url);
 
 /* ───────────────────────────── Trasy ───────────────────────────── */
 
-/** Trasy statyczne do sitemapy. Wpisy dynamiczne (wydarzenia, aktualności,
- *  galerie) dokleja sitemap.ts po podpięciu Sanity. */
 export const staticRoutes = [
   { path: "/", priority: 1.0, changeFrequency: "weekly" },
   { path: "/oferta", priority: 0.9, changeFrequency: "monthly" },
@@ -171,14 +199,3 @@ export const staticRoutes = [
   { path: "/polityka-prywatnosci", priority: 0.2, changeFrequency: "yearly" },
   { path: "/regulamin", priority: 0.2, changeFrequency: "yearly" },
 ] as const;
-
-/** Czy dany link odpowiada bieżącej trasie.
- *  Czysta funkcja — bez Reacta, więc mogą jej używać zarówno
- *  komponenty klienckie (Navbar), jak i serwerowe. */
-export function isActiveLink(pathname: string, link: NavLink): boolean {
-  if (link.path === "/") return pathname === "/";
-  if (link.matchNested) {
-    return pathname === link.path || pathname.startsWith(`${link.path}/`);
-  }
-  return pathname === link.path;
-}
