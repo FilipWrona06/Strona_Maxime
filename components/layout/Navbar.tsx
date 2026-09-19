@@ -1,12 +1,11 @@
 // components/layout/Navbar.tsx
 //
-// Wersja bez komponentu ActiveLinks — logika podświetlania jest teraz
-// wbudowana. Nic nie zostało utracone: podświetlenie bieżącej strony,
-// obsługa tras zagnieżdżonych (/wydarzenia/nazwa-koncertu podświetla
-// "Wydarzenia") i aria-current="page" działają jak wcześniej.
+// Logika podświetlania wbudowana, bez komponentu ActiveLinks.
+// Warunek aktywności i klasy efektu siedzą w data/site.ts, żeby
+// Navbar i Footer nie rozjechały się przy kolejnej zmianie.
 //
-// Sam warunek aktywności siedzi w data/site.ts jako czysta funkcja,
-// żeby Footer mógł go użyć bez stawania się komponentem klienckim.
+// JEDEN efekt w całym serwisie: podkreślenie wyjeżdżające od środka
+// plus zmiana koloru. Rozmiar tekstu ustala miejsce użycia.
 
 "use client";
 
@@ -15,7 +14,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-import { isActiveLink, mainLinks, site } from "@/data/site";
+import { isActiveLink, mainLinks, navLink, site } from "@/data/site";
 
 const isExternal = (url: string) => /^https?:\/\//.test(url);
 
@@ -103,7 +102,8 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Menu desktopowe */}
+          {/* Menu desktopowe — od lg, czyli 1024 px.
+              Wszystko poniżej (w tym tablety) dostaje wersję mobilną. */}
           <ul className="hidden grow justify-center lg:flex lg:gap-2.5 xl:gap-6 2xl:gap-8">
             {mainLinks.map((link) => {
               const active = isActiveLink(pathname, link);
@@ -112,18 +112,12 @@ export default function Navbar() {
                   <Link
                     href={link.path}
                     aria-current={active ? "page" : undefined}
-                    className={`group font-montserrat relative block py-2 text-[0.75rem] font-medium whitespace-nowrap uppercase transition-colors lg:text-[0.65rem] lg:tracking-widest xl:text-[0.8rem] xl:tracking-[0.15em] ${
-                      active
-                        ? "text-arylideYellow"
-                        : "hover:text-arylideYellow text-white"
-                    }`}
+                    className={`${navLink.wrapper} ${navLink.color(active)} py-2 text-[0.75rem] font-medium whitespace-nowrap uppercase lg:text-[0.65rem] lg:tracking-widest xl:text-[0.8rem] xl:tracking-[0.15em]`}
                   >
                     {link.name}
                     <span
                       aria-hidden="true"
-                      className={`bg-arylideYellow absolute -bottom-1 left-1/2 h-0.5 -translate-x-1/2 transition-all duration-300 ${
-                        active ? "w-full" : "w-0 group-hover:w-full"
-                      }`}
+                      className={navLink.underline(active)}
                     />
                   </Link>
                 </li>
@@ -156,7 +150,7 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* Menu mobilne */}
+      {/* Menu mobilne i tabletowe */}
       <div
         id="menu-mobilne"
         inert={!isMenuOpen}
@@ -201,7 +195,7 @@ export default function Navbar() {
             </button>
           </div>
 
-          <ul className="flex flex-col gap-6 pt-12">
+          <ul className="flex flex-col items-start gap-6 pt-12">
             {mainLinks.map((link, i) => {
               const active = isActiveLink(pathname, link);
               return (
@@ -214,23 +208,19 @@ export default function Navbar() {
                   }`}
                   style={{ transitionDelay: `${150 + i * 75}ms` }}
                 >
+                  {/* Ten sam efekt co w nagłówku i stopce —
+                      wcześniej była tu kropka z przesunięciem. */}
                   <Link
                     href={link.path}
                     onClick={closeMenu}
                     aria-current={active ? "page" : undefined}
-                    className={`group flex items-center gap-4 text-3xl leading-tight tracking-wide transition-all duration-300 ${
-                      active
-                        ? "text-arylideYellow translate-x-2 font-medium"
-                        : "font-light text-white hover:translate-x-2 hover:text-white/80"
-                    }`}
+                    className={`${navLink.wrapper} ${navLink.color(active)} pb-1 text-3xl leading-tight font-light tracking-wide`}
                   >
+                    {link.name}
                     <span
                       aria-hidden="true"
-                      className={`bg-arylideYellow block rounded-full transition-all duration-300 ${
-                        active ? "h-2.5 w-2.5 opacity-100" : "h-0 w-0 opacity-0"
-                      }`}
+                      className={navLink.underline(active)}
                     />
-                    {link.name}
                   </Link>
                 </li>
               );
