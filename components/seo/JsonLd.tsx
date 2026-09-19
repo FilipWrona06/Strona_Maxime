@@ -69,11 +69,9 @@ export function organizationSchema() {
     legalName: site.legalName,
     alternateName: site.shortName,
     slogan: site.motto,
-    description: site.description,
-    // Zdanie rozróżniające — pomaga Google odróżnić was od Orkiestry
-    // Maximus, Fundacji Maxima i Fundacji Maxima Dzieciom.
-    disambiguatingDescription:
-      "Orkiestra symfoniczna i kameralna z Dąbrowy Górniczej, działająca od 2022 roku.",
+    // Pełny opis, nie skrócony meta description — w danych strukturalnych
+    // nie ma limitu znaków, więc nie ma po co oszczędzać.
+    description: site.descriptionLong,
     url: siteUrl,
     foundingDate: site.foundingDate,
     foundingLocation: {
@@ -147,8 +145,8 @@ export function organizationSchema() {
     },
 
     /* ─── Dane rejestrowe ───
-       Renderują się dopiero po uzupełnieniu w site.ts. VAT i NIP
-       tylko jeśli fundacja jest płatnikiem — DO USTALENIA. */
+       Renderują się dopiero po uzupełnieniu w site.ts. taxID tylko
+       jeśli fundacja jest płatnikiem — DO USTALENIA. */
     ...(site.legal.krs
       ? {
           identifier: {
@@ -249,7 +247,7 @@ export function websiteSchema() {
     url: siteUrl,
     name: site.name,
     alternateName: site.shortName,
-    description: site.description,
+    description: site.descriptionLong,
     inLanguage: site.lang,
     publisher: orgRef,
     copyrightHolder: orgRef,

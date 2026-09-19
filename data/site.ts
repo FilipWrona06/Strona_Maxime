@@ -4,18 +4,18 @@
 // Celowo BEZ JSX — ten plik importują robots.ts, sitemap.ts i blok
 // metadata w root layoucie, więc musi zostać czystym TypeScriptem.
 //
-// Podmiot prowadzący serwis: Fundacja Maxime. Nazwa stowarzyszenia
-// nie występuje w projekcie.
+// Podmiot prowadzący serwis: Fundacja Maxime.
 
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
 ).replace(/\/$/, "");
 
 /** Czy ta instancja ma trafić do indeksu wyszukiwarek.
- *  Na Vercelu trzymamy false aż do przenosin. */
+ *  Na Vercelu trzymamy false aż do przenosin.
+ *  UWAGA: odczytywane przy BUILDZIE — zmiana wymaga redeployu. */
 export const isIndexable = process.env.NEXT_PUBLIC_INDEXABLE === "true";
 
-/* ───────────────────────────── Socjale ───────────────────────────── */
+/* ═══════════════════════════ SOCJALE ═══════════════════════════ */
 
 export type SocialPlatform =
   | "facebook"
@@ -70,16 +70,162 @@ export const socials: Social[] = [
 ];
 
 /** Idzie do sameAs w JSON-LD. Sześć potwierdzonych profili to mocny
- *  sygnał tożsamości — przydatny przy kolizji nazwy z Orkiestrą Maximus
+ *  sygnał tożsamości przy kolizji nazwy z Orkiestrą Maximus
  *  i dwiema Fundacjami Maxima. */
 export const socialUrls = socials.map((s) => s.url);
 
 const patronite = socials.find((s) => s.platform === "patronite");
 
-/* ───────────────────────────── Organizacja ───────────────────────────── */
+/* ═══════════════════════════ TRASY ═══════════════════════════
+   JEDNO źródło dla nawigacji, stopki i sitemapy. Wcześniej te same
+   ścieżki były wypisane w trzech listach, co gwarantuje rozjazd:
+   wystarczy dodać podstronę do menu i zapomnieć o sitemapie.
+   ═══════════════════════════════════════════════════════════════ */
+
+type Route = {
+  path: string;
+  label: string;
+  /** Pokazuj w menu głównym. */
+  nav?: boolean;
+  /** Pokazuj w kolumnie "Eksploruj" w stopce. */
+  footer?: boolean;
+  /** Pokazuj w pasku prawnym na dole stopki. */
+  legal?: boolean;
+  /** Podświetlaj też na trasach zagnieżdżonych,
+   *  np. /wydarzenia/nazwa-koncertu → aktywne "Wydarzenia". */
+  matchNested?: boolean;
+  /** Dane do sitemapy. Pominięcie = trasa nie trafia do mapy. */
+  sitemap?: {
+    priority: number;
+    changeFrequency:
+      | "always"
+      | "hourly"
+      | "daily"
+      | "weekly"
+      | "monthly"
+      | "yearly"
+      | "never";
+  };
+};
+
+export const routes: Route[] = [
+  {
+    path: "/",
+    label: "Strona główna",
+    footer: true,
+    sitemap: { priority: 1.0, changeFrequency: "weekly" },
+  },
+  {
+    path: "/o-nas",
+    label: "O nas",
+    nav: true,
+    footer: true,
+    sitemap: { priority: 0.8, changeFrequency: "monthly" },
+  },
+  {
+    path: "/oferta",
+    label: "Oferta",
+    nav: true,
+    footer: true,
+    sitemap: { priority: 0.9, changeFrequency: "monthly" },
+  },
+  {
+    path: "/wydarzenia",
+    label: "Wydarzenia",
+    nav: true,
+    footer: true,
+    matchNested: true,
+    sitemap: { priority: 0.9, changeFrequency: "weekly" },
+  },
+  {
+    path: "/aktualnosci",
+    label: "Aktualności",
+    nav: true,
+    footer: true,
+    matchNested: true,
+    sitemap: { priority: 0.7, changeFrequency: "weekly" },
+  },
+  {
+    path: "/galeria",
+    label: "Galeria",
+    nav: true,
+    footer: true,
+    matchNested: true,
+    sitemap: { priority: 0.5, changeFrequency: "monthly" },
+  },
+  {
+    path: "/kontakt",
+    label: "Kontakt",
+    nav: true,
+    footer: true,
+    sitemap: { priority: 0.6, changeFrequency: "yearly" },
+  },
+  {
+    path: "/regulamin",
+    label: "Regulamin",
+    legal: true,
+    sitemap: { priority: 0.2, changeFrequency: "yearly" },
+  },
+  {
+    path: "/polityka-prywatnosci",
+    label: "Polityka prywatności",
+    legal: true,
+    sitemap: { priority: 0.2, changeFrequency: "yearly" },
+  },
+];
+
+export type NavLink = { name: string; path: string; matchNested?: boolean };
+
+const toNavLink = (r: Route): NavLink => ({
+  name: r.label,
+  path: r.path,
+  matchNested: r.matchNested,
+});
+
+/** "Strona główna" celowo poza menu — logo po lewej robi to samo,
+ *  a sześć pozycji zamiast siedmiu ratuje układ na laptopie 1280 px. */
+export const mainLinks = routes.filter((r) => r.nav).map(toNavLink);
+export const footerLinks = routes.filter((r) => r.footer).map(toNavLink);
+export const legalLinks = routes.filter((r) => r.legal).map(toNavLink);
+
+/** Dla app/sitemap.ts. Wpisy dynamiczne (wydarzenia, aktualności)
+ *  dokleja sitemap.ts po podpięciu CMS. */
+export const staticRoutes = routes
+  .filter((r) => r.sitemap)
+  .map((r) => ({
+    path: r.path,
+    priority: r.sitemap?.priority ?? 0.5,
+    changeFrequency: r.sitemap?.changeFrequency ?? "monthly",
+  }));
+
+/** Czy dany link odpowiada bieżącej trasie.
+ *  Czysta funkcja — mogą jej używać komponenty klienckie i serwerowe. */
+export function isActiveLink(pathname: string, link: NavLink): boolean {
+  if (link.path === "/") return pathname === "/";
+  if (link.matchNested) {
+    return pathname === link.path || pathname.startsWith(`${link.path}/`);
+  }
+  return pathname === link.path;
+}
+
+/* ═══════════════════════════ ORGANIZACJA ═══════════════════════════ */
+
+/** Dane rejestrowe. Typ jawny zamiast wnioskowania z `as const` —
+ *  inaczej puste stringi dostają typ literalny "" i warunek
+ *  `site.legal.krs && ...` staje się dla TypeScriptu zawsze fałszywy. */
+type Legal = { name: string; krs: string; nip: string; regon: string };
+
+const legal: Legal = {
+  name: "Fundacja Maxime",
+  // BLOKADA: bez KRS i NIP nie da się domknąć stopki, regulaminu,
+  // polityki prywatności ani klauzuli przy formularzu.
+  krs: "",
+  nip: "",
+  regon: "",
+};
 
 export const site = {
-  /** Nazwa publiczna — używana w nagłówkach, tytułach i treści. */
+  /** Nazwa publiczna — nagłówki, tytuły, treść. */
   name: "Orkiestra Maxime",
   shortName: "Maxime",
   motto: "Z pasji do muzyki",
@@ -88,12 +234,23 @@ export const site = {
    *  klauzule RODO, JSON-LD. */
   legalName: "Fundacja Maxime",
 
-  title: "Orkiestra Maxime — oprawa muzyczna wydarzeń | Dąbrowa Górnicza",
+  /** 53 znaki. Google ucina tytuły po mniej więcej 60 —
+   *  poprzednia wersja z "wydarzeń" miała 62 i się nie mieściła. */
+  title: "Orkiestra Maxime — oprawa muzyczna | Dąbrowa Górnicza",
   titleTemplate: "%s | Orkiestra Maxime",
 
+  /** 154 znaki, czyli w granicy tego, co Google pokazuje w wynikach.
+   *  Wszystko ważne na początku, bo koniec i tak bywa ucinany. */
   description:
-    "Orkiestra symfoniczna i kameralna z Dąbrowy Górniczej. Oprawa muzyczna gal, jubileuszy firmowych, ceremonii i koncertów plenerowych na Śląsku i w Zagłębiu. Skład od kwartetu po 40 muzyków.",
+    "Orkiestra symfoniczna i kameralna z Dąbrowy Górniczej. Oprawa muzyczna gal, jubileuszy firmowych, ceremonii i koncertów plenerowych na Śląsku.",
 
+  /** Pełna wersja do JSON-LD, gdzie nie ma limitu długości. */
+  descriptionLong:
+    "Orkiestra symfoniczna i kameralna z Dąbrowy Górniczej, działająca od 2022 roku. Oprawa muzyczna gal i jubileuszy firmowych, ceremonii ślubnych, koncertów plenerowych i widowisk patriotycznych na Śląsku i w Zagłębiu. Skład od kwartetu po czterdziestu muzyków.",
+
+  /** DO WYMIANY: zdanie w stopce, widoczne na każdej podstronie.
+   *  Obecne jest grą słów z nazwą, ale nie mówi nic o tym, co robicie.
+   *  Lepszy byłby konkret: skład, repertuar albo zasięg. */
   tagline:
     "Odkryj z nami maksymalną jakość, maksymalne zaangażowanie oraz maksymalną radość z muzyki.",
 
@@ -112,6 +269,7 @@ export const site = {
 
   contact: {
     email: "kontakt@maxime.com.pl",
+    /** E.164 — do href="tel:" i do JSON-LD. */
     phone: "+48784762553",
     phoneDisplay: "+48 784 762 553",
   },
@@ -124,106 +282,48 @@ export const site = {
     country: "PL",
   },
 
-  /** ZWERYFIKOWAĆ przed wdrożeniem. */
+  /** ZWERYFIKOWAĆ przed wdrożeniem — wpisane orientacyjnie. */
   geo: { lat: 50.3216, lng: 19.1874 },
 
-  /** Dane rejestrowe fundacji.
-   *  BLOKADA: bez KRS i NIP nie da się domknąć stopki, regulaminu,
-   *  polityki prywatności ani klauzuli przy formularzu. */
-  legal: {
-    name: "Fundacja Maxime",
-    krs: "",
-    nip: "",
-    regon: "",
-  },
+  legal,
 
   /** Rok powstania orkiestry, nie data rejestracji podmiotu.
    *  Schema opisuje zespół, a ten gra od 2022. */
   foundingDate: "2022",
 
   /** Podpis wykonawcy w stopce. Pusta nazwa = nie renderuje się. */
-  author: {
-    name: "",
-    url: "",
-  },
+  author: { name: "", url: "" },
 
   /** Cel przycisku "Wesprzyj nas" — Patronite.
-   *  Navbar sam wykryje adres zewnętrzny i doda target="_blank". */
+   *  Navbar sam wykryje adres zewnętrzny i doda target="_blank".
+   *  UWAGA: Patronite pojawia się przez to dwa razy — jako przycisk
+   *  w nagłówku i jako ikona w stopce. Do decyzji, czy zostawiamy. */
   supportUrl: patronite?.url ?? "/kontakt",
-} as const;
+};
 
 /** Rok liczony przy wywołaniu, nie przy imporcie modułu.
  *  Wersja ze stałą pokazywała rok z momentu builda. */
 export const getCopyright = () =>
   `© ${new Date().getFullYear()} ${site.legalName}. Wszelkie prawa zastrzeżone.`;
 
-/* ───────────────────────────── Nawigacja ───────────────────────────── */
-
-export type NavLink = {
-  name: string;
-  path: string;
-  /** Podświetlaj też na trasach zagnieżdżonych,
-   *  np. /wydarzenia/nazwa-koncertu → aktywne "Wydarzenia". */
-  matchNested?: boolean;
-};
-
-/** "Strona główna" wycięta z menu — logo po lewej robi to samo.
- *  Sześć pozycji zamiast siedmiu ratuje układ na laptopie 1280 px. */
-export const mainLinks: NavLink[] = [
-  { name: "O nas", path: "/o-nas" },
-  { name: "Oferta", path: "/oferta" },
-  { name: "Wydarzenia", path: "/wydarzenia", matchNested: true },
-  { name: "Aktualności", path: "/aktualnosci", matchNested: true },
-  { name: "Galeria", path: "/galeria", matchNested: true },
-  { name: "Kontakt", path: "/kontakt" },
-];
-
-export const footerLinks: NavLink[] = [
-  { name: "Strona główna", path: "/" },
-  ...mainLinks,
-];
-
-export const legalLinks: NavLink[] = [
-  { name: "Regulamin", path: "/regulamin" },
-  { name: "Polityka prywatności", path: "/polityka-prywatnosci" },
-];
-
-/** Czy dany link odpowiada bieżącej trasie.
- *  Czysta funkcja — mogą jej używać komponenty klienckie i serwerowe. */
-export function isActiveLink(pathname: string, link: NavLink): boolean {
-  if (link.path === "/") return pathname === "/";
-  if (link.matchNested) {
-    return pathname === link.path || pathname.startsWith(`${link.path}/`);
-  }
-  return pathname === link.path;
-}
+/* ═══════════════════════════ STYL LINKÓW ═══════════════════════════ */
 
 /** JEDEN efekt linku nawigacyjnego dla całego serwisu: podkreślenie
  *  wyjeżdżające od środka plus zmiana koloru. Rozmiar tekstu ustala
- *  miejsce użycia, zachowanie jest wspólne. */
+ *  miejsce użycia, zachowanie jest wspólne.
+ *
+ *  Kolory zakładają ciemne tło — jeśli powstanie jasna sekcja
+ *  z nawigacją, trzeba będzie dołożyć wariant. */
 export const navLink = {
-  wrapper:
-    "group font-montserrat relative inline-block transition-colors duration-300",
+  wrapper: "group relative inline-block transition-colors duration-300",
 
   color: (active: boolean) =>
     active ? "text-arylideYellow" : "text-white/70 hover:text-white",
 
+  /** h-px jest ledwie widoczne pod tekstem 3xl w menu mobilnym.
+   *  Jeśli razi, zmień tutaj na h-0.5 — zadziała wszędzie naraz. */
   underline: (active: boolean) =>
     `bg-arylideYellow absolute -bottom-1 left-1/2 h-px -translate-x-1/2 transition-all duration-300 ${
       active ? "w-full" : "w-0 group-hover:w-full"
     }`,
 };
-
-/* ───────────────────────────── Trasy ───────────────────────────── */
-
-export const staticRoutes = [
-  { path: "/", priority: 1.0, changeFrequency: "weekly" },
-  { path: "/oferta", priority: 0.9, changeFrequency: "monthly" },
-  { path: "/wydarzenia", priority: 0.9, changeFrequency: "weekly" },
-  { path: "/o-nas", priority: 0.8, changeFrequency: "monthly" },
-  { path: "/aktualnosci", priority: 0.7, changeFrequency: "weekly" },
-  { path: "/galeria", priority: 0.5, changeFrequency: "monthly" },
-  { path: "/kontakt", priority: 0.6, changeFrequency: "yearly" },
-  { path: "/polityka-prywatnosci", priority: 0.2, changeFrequency: "yearly" },
-  { path: "/regulamin", priority: 0.2, changeFrequency: "yearly" },
-] as const;
