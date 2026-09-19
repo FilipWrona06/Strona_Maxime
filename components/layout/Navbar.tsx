@@ -18,13 +18,25 @@ import { isActiveLink, mainLinks, navLink, site } from "@/data/site";
 
 const isExternal = (url: string) => /^https?:\/\//.test(url);
 
+/** Elementy, które mogą przyjąć fokus — do zamknięcia go w oknie menu. */
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   const closeMenu = () => setIsMenuOpen(false);
+
+  const isHome = pathname === "/";
+  // Na stronie głównej pasek jest przezroczysty nad ciemnym hero.
+  // Na podstronach treść zaczyna się tuż pod nim, więc musi mieć tło
+  // od razu — inaczej napisy nakładają się na tekst strony.
+  const isSolid = isScrolled || !isHome;
 
   // Stan scrolla: passive + rAF, żeby nie blokować wątku głównego.
   useEffect(() => {
@@ -42,19 +54,60 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Escape zamyka i oddaje fokus przyciskowi otwierającemu.
+  // Po otwarciu fokus wchodzi DO okna. Bez tego zostawał na hamburgerze,
+  // czyli poza dialogiem — czytnik ogłaszał modal, a użytkownik był obok.
   useEffect(() => {
     if (!isMenuOpen) return;
+    closeRef.current?.focus();
+  }, [isMenuOpen]);
+
+  // Escape zamyka, Tab krąży wewnątrz okna.
+  // aria-modal informuje czytniki, ale NIE zatrzymuje klawiatury —
+  // bez tego Tabem wychodziło się w treść strony pod spodem.
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
-      setIsMenuOpen(false);
-      triggerRef.current?.focus();
+      if (e.key === "Escape") {
+        setIsMenuOpen(false);
+        triggerRef.current?.focus();
+        return;
+      }
+
+      if (e.key !== "Tab") return;
+
+      const panel = panelRef.current;
+      if (!panel) return;
+
+      const items = Array.from(
+        panel.querySelectorAll<HTMLElement>(FOCUSABLE),
+      ).filter((el) => el.offsetParent !== null);
+      if (items.length === 0) return;
+
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      } else if (!panel.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      }
     };
+
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [isMenuOpen]);
 
   // Blokada przewijania tła pod otwartym menu.
+  // Uwaga: na iOS samo overflow:hidden nie powstrzymuje gestu do końca.
+  // Jeśli okaże się to problemem, trzeba będzie zapisać scrollY
+  // i ustawić body na position:fixed z ujemnym top.
   useEffect(() => {
     if (!isMenuOpen) return;
     const previous = document.body.style.overflow;
@@ -82,7 +135,7 @@ export default function Navbar() {
         <nav
           aria-label="Menu główne"
           className={`flex w-full max-w-7xl items-center justify-between transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-            isScrolled
+            isSolid
               ? "bg-raisinBlack/85 rounded-full border border-white/10 px-8 py-4 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] backdrop-blur-xl"
               : "rounded-none border-transparent bg-transparent px-0 py-2"
           }`}
@@ -92,12 +145,14 @@ export default function Navbar() {
             aria-label={`${site.name} — strona główna`}
             className="flex shrink-0 items-center lg:mr-4 xl:mr-8"
           >
+            {/* Bez priority: logo jest w SVG, więc next/image i tak go nie
+                optymalizuje, a wstępne pobranie konkurowałoby z plakatem
+                hero — czyli z prawdziwym elementem LCP. */}
             <Image
               src={site.logo.src}
               alt={site.name}
               width={site.logo.width}
               height={site.logo.height}
-              priority
               className={`h-10 w-auto lg:h-10 xl:h-14 ${logoClass}`}
             />
           </Link>
@@ -129,7 +184,7 @@ export default function Navbar() {
             <Link
               href={site.supportUrl}
               {...supportLinkProps}
-              className="border-arylideYellow font-montserrat text-arylideYellow hover:bg-arylideYellow hover:text-raisinBlack flex items-center justify-center rounded-full border bg-transparent px-8 py-3 text-[0.7rem] font-bold uppercase transition-colors duration-500 lg:px-5 lg:py-2 lg:text-[0.65rem] lg:tracking-[0.15em] xl:px-8 xl:py-3 xl:text-[0.7rem] xl:tracking-[0.2em]"
+              className="border-arylideYellow text-arylideYellow hover:bg-arylideYellow hover:text-raisinBlack flex items-center justify-center rounded-full border bg-transparent px-8 py-3 text-[0.7rem] font-bold uppercase transition-colors duration-500 lg:px-5 lg:py-2 lg:text-[0.65rem] lg:tracking-[0.15em] xl:px-8 xl:py-3 xl:text-[0.7rem] xl:tracking-[0.2em]"
             >
               Wesprzyj nas
             </Link>
@@ -169,70 +224,76 @@ export default function Navbar() {
         />
 
         <div
+          ref={panelRef}
           role="dialog"
           aria-modal="true"
           aria-label="Menu"
-          className={`bg-raisinBlack relative flex h-full w-full max-w-sm flex-col justify-between border-l border-white/10 p-8 shadow-2xl transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] sm:w-[80%] ${
+          className={`bg-raisinBlack relative flex h-full w-full max-w-sm flex-col overflow-y-auto overscroll-contain border-l border-white/10 p-8 shadow-2xl transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
             isMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
-          <div className="flex items-center justify-between">
+          {/* Rząd nagłówkowy: logo wyśrodkowane w szerokości panelu,
+              krzyżyk wyjęty z układu i przyklejony do prawej krawędzi.
+              Dzięki relative na rzędzie oba są równo w pionie.
+              Krzyżyk pierwszy w DOM, bo na niego wchodzi fokus. */}
+          <div className="relative flex shrink-0 items-center justify-center">
+            <button
+              ref={closeRef}
+              type="button"
+              onClick={closeMenu}
+              aria-label="Zamknij menu"
+              className="absolute right-0 flex h-10 w-10 items-center justify-center text-3xl text-white"
+            >
+              <span aria-hidden="true">✕</span>
+            </button>
+
             <Image
               src={site.logo.src}
               alt=""
               aria-hidden="true"
-              width={180}
-              height={60}
+              width={site.logo.width}
+              height={site.logo.height}
               className={`h-12 w-auto ${logoClass}`}
             />
-            <button
-              type="button"
-              onClick={closeMenu}
-              aria-label="Zamknij menu"
-              className="flex h-10 w-10 items-center justify-center text-3xl text-white"
-            >
-              <span aria-hidden="true">✕</span>
-            </button>
           </div>
 
-          <ul className="flex flex-col items-start gap-6 pt-12">
-            {mainLinks.map((link, i) => {
-              const active = isActiveLink(pathname, link);
-              return (
-                <li
-                  key={link.path}
-                  className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                    isMenuOpen
-                      ? "translate-x-0 opacity-100"
-                      : "translate-x-12 opacity-0"
-                  }`}
-                  style={{ transitionDelay: `${150 + i * 75}ms` }}
-                >
-                  {/* Ten sam efekt co w nagłówku i stopce —
-                      wcześniej była tu kropka z przesunięciem. */}
-                  <Link
-                    href={link.path}
-                    onClick={closeMenu}
-                    aria-current={active ? "page" : undefined}
-                    className={`${navLink.wrapper} ${navLink.color(active)} pb-1 text-3xl leading-tight font-light tracking-wide`}
+          {/* Linki i przycisk wyśrodkowane w tym, co zostaje poniżej. */}
+          <div className="flex flex-1 flex-col items-center justify-center gap-12 py-12">
+            <ul className="flex flex-col items-center gap-6">
+              {mainLinks.map((link, i) => {
+                const active = isActiveLink(pathname, link);
+                return (
+                  <li
+                    key={link.path}
+                    className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                      isMenuOpen
+                        ? "translate-y-0 opacity-100"
+                        : "translate-y-6 opacity-0"
+                    }`}
+                    style={{ transitionDelay: `${150 + i * 75}ms` }}
                   >
-                    {link.name}
-                    <span
-                      aria-hidden="true"
-                      className={navLink.underline(active)}
-                    />
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+                    <Link
+                      href={link.path}
+                      onClick={closeMenu}
+                      aria-current={active ? "page" : undefined}
+                      className={`${navLink.wrapper} ${navLink.color(active)} pb-1 text-3xl leading-tight font-light tracking-wide`}
+                    >
+                      {link.name}
+                      <span
+                        aria-hidden="true"
+                        className={navLink.underline(active)}
+                      />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
 
-          <div className="mt-auto pb-8">
             <Link
               href={site.supportUrl}
               {...supportLinkProps}
               onClick={closeMenu}
-              className="bg-arylideYellow font-montserrat text-raisinBlack flex w-full items-center justify-center rounded-full py-5 text-xs font-bold tracking-[0.2em] uppercase"
+              className="bg-arylideYellow text-raisinBlack flex w-full items-center justify-center rounded-full py-5 text-xs font-bold tracking-[0.2em] uppercase"
             >
               Wesprzyj nas
             </Link>
