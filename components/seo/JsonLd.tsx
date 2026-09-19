@@ -68,7 +68,9 @@ export function organizationSchema() {
     name: site.name,
     legalName: site.legalName,
     alternateName: site.shortName,
-    slogan: site.motto,
+    // Motto z brandbooka. Wpisane wprost, bo site.ts trzyma dane,
+    // nie treść — a slogan jest tu faktem o marce, nie copy strony.
+    slogan: "Z pasji do muzyki",
     // Pełny opis, nie skrócony meta description — w danych strukturalnych
     // nie ma limitu znaków, więc nie ma po co oszczędzać.
     description: site.descriptionLong,

@@ -1,10 +1,12 @@
 // components/home/Hero.tsx
 //
-// Hero z wbudowanym wideo tła — BackgroundVideo scalony do tego pliku.
-// Konsekwencja: cały hero jest komponentem klienckim. Jeden plik nie może
-// mieszać granicy serwer/klient, więc H1, akapit i przyciski też trafiają
+// Hero z wbudowanym wideo tła. Konsekwencja scalenia: cały hero jest
+// komponentem klienckim, więc H1, akapit i przyciski też trafiają
 // do bundla i podlegają hydracji. Jeśli kiedyś LCP na komórce zacznie
 // uwierać, wydzielenie samego <video> z powrotem cofa ten koszt.
+//
+// Cała treść widoczna na ekranie jest wpisana tutaj — site.ts trzyma
+// dane o organizacji i konfigurację, nie copy.
 //
 // Nagłówek: "Z pasji do muzyki" to wedle brandbooka motto, nie tytuł.
 // Zostaje dominantą wizualną, ale H1 niesie też nazwę i miasto — bez tego
@@ -22,6 +24,7 @@ type NetworkInformation = { saveData?: boolean };
 export default function Hero() {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   // Wideo dociągane po załadowaniu strony, żeby nie konkurowało
   // o pasmo z plakatem, który jest elementem LCP.
@@ -32,6 +35,9 @@ export default function Hero() {
     if (connection?.saveData) return;
 
     const load = () => {
+      // Sprawdzane raz, przy pierwszym ładowaniu. Po obrocie telefonu
+      // źródło się nie zmieni — świadomie, bo podmiana w locie
+      // przerywałaby odtwarzanie i kosztowała drugie pobranie.
       const isMobile = window.matchMedia("(max-width: 767px)").matches;
       setVideoSrc(isMobile ? "/bg-video-mobile.mp4" : "/bg-video.mp4");
     };
@@ -61,8 +67,19 @@ export default function Hero() {
     });
   }, [videoSrc]);
 
+  // Przewinięcie do sekcji pod hero. Liczone z wysokości samego hero,
+  // więc działa niezależnie od tego, co pod nim stoi — nie wymaga
+  // kotwicy w komponencie, którego jeszcze nie ma.
+  const scrollToContent = () => {
+    const height = sectionRef.current?.offsetHeight ?? window.innerHeight;
+    window.scrollTo({ top: height });
+  };
+
   return (
-    <section className="bg-raisinBlack relative flex min-h-svh w-full items-center justify-center overflow-hidden">
+    <section
+      ref={sectionRef}
+      className="bg-raisinBlack relative flex min-h-svh w-full items-center justify-center overflow-hidden"
+    >
       <div className="absolute inset-0 h-full w-full">
         {/* Element LCP. alt pusty, bo obraz jest dekoracyjny —
             opis sceny powtarzałby treść nagłówka. */}
@@ -108,13 +125,13 @@ export default function Hero() {
           >
             Z pasji do muzyki
           </span>
-          <span className="font-montserrat mt-2 block text-sm font-light tracking-[0.25em] text-white/70 sm:text-base md:mt-4">
+          <span className="mt-2 block text-sm font-light tracking-[0.25em] text-white/70 sm:text-base md:mt-4">
             Orkiestra Maxime, Dąbrowa Górnicza
           </span>
         </h1>
 
         <p
-          className="animate-fade-in-up font-montserrat mb-8 max-w-2xl text-sm leading-relaxed font-light text-white/80 opacity-0 sm:text-base md:mb-10 md:text-lg"
+          className="animate-fade-in-up mb-8 max-w-2xl text-sm leading-relaxed font-light text-white/80 opacity-0 sm:text-base md:mb-10 md:text-lg"
           style={{ animationDelay: "150ms" }}
         >
           Orkiestra symfoniczna i kameralna z Zagłębia. Gramy koncerty, gale,
@@ -130,7 +147,7 @@ export default function Hero() {
               która zarabia. */}
           <Link
             href="/oferta"
-            className="group bg-arylideYellow font-montserrat text-raisinBlack relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase transition-all duration-700 hover:scale-[1.03] hover:shadow-[0_0_30px_-10px_rgba(239,203,111,0.6)] sm:w-auto sm:px-12"
+            className="group bg-arylideYellow text-raisinBlack relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase transition-[transform,box-shadow] duration-300 hover:scale-[1.03] hover:shadow-[0_0_30px_-10px_rgba(239,203,111,0.6)] sm:w-auto sm:px-12"
           >
             <span className="relative z-10 flex items-center gap-3">
               Zamów oprawę muzyczną
@@ -139,7 +156,7 @@ export default function Hero() {
               <svg
                 aria-hidden="true"
                 focusable="false"
-                className="h-4 w-4 transition-transform duration-500 ease-out group-hover:translate-x-2"
+                className="h-4 w-4 transition-transform duration-300 ease-out group-hover:translate-x-2"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -152,30 +169,41 @@ export default function Hero() {
                 />
               </svg>
             </span>
-            <div className="absolute inset-0 z-0 h-full w-full -translate-x-full rounded-full bg-white/30 transition-transform duration-700 ease-out group-hover:translate-x-0" />
+            <div className="absolute inset-0 z-0 h-full w-full -translate-x-full rounded-full bg-white/30 transition-transform duration-500 ease-out group-hover:translate-x-0" />
           </Link>
 
           <Link
             href="/wydarzenia"
-            className="group font-montserrat hover:text-raisinBlack flex w-full items-center justify-center rounded-full border border-white/20 bg-white/5 px-8 py-4 text-xs font-bold tracking-[0.2em] text-white uppercase backdrop-blur-xl transition-all duration-700 hover:scale-[1.03] hover:bg-white sm:w-auto sm:px-12"
+            className="hover:text-raisinBlack flex w-full items-center justify-center rounded-full border border-white/20 bg-white/5 px-8 py-4 text-xs font-bold tracking-[0.2em] text-white uppercase backdrop-blur-xl transition-[transform,background-color,color] duration-300 hover:scale-[1.03] hover:bg-white sm:w-auto sm:px-12"
           >
             Najbliższe koncerty
           </Link>
         </div>
       </div>
 
-      <div
-        aria-hidden="true"
+      {/* Był to element ozdobny, choć wyglądał na klikalny —
+          strzałka i animowana kreska to typowa afordancja przewijania.
+          Teraz faktycznie przewija. */}
+      <button
+        type="button"
+        onClick={scrollToContent}
+        aria-label="Przewiń do treści strony"
         className="animate-fade-in-up absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2 opacity-0 md:bottom-8 md:gap-3 [@media(max-height:600px)]:hidden md:[@media(max-height:800px)]:hidden lg:[@media(max-height:900px)]:hidden"
         style={{ animationDelay: "600ms" }}
       >
-        <span className="font-montserrat text-[0.55rem] font-semibold tracking-[0.4em] text-white/50 uppercase">
+        <span
+          aria-hidden="true"
+          className="text-[0.55rem] font-semibold tracking-[0.4em] text-white/50 uppercase transition-colors duration-300 hover:text-white"
+        >
           Odkryj
         </span>
-        <div className="relative h-10 w-px overflow-hidden bg-white/10 md:h-16">
+        <div
+          aria-hidden="true"
+          className="relative h-10 w-px overflow-hidden bg-white/10 md:h-16"
+        >
           <div className="animate-scroll-line bg-arylideYellow absolute top-0 left-0 h-full w-full" />
         </div>
-      </div>
+      </button>
     </section>
   );
 }

@@ -1,10 +1,14 @@
 // data/site.ts
 //
-// Jedno źródło prawdy: domena, organizacja, nawigacja, socjale, trasy.
-// Celowo BEZ JSX — ten plik importują robots.ts, sitemap.ts i blok
-// metadata w root layoucie, więc musi zostać czystym TypeScriptem.
+// ŹRÓDŁO PRAWDY: dane i konfiguracja. Nazwa, podmiot prawny, adres,
+// kontakt, profile, trasy, metadane SEO.
 //
-// Podmiot prowadzący serwis: Fundacja Maxime.
+// NIE MA tu treści wyświetlanej na stronie — nagłówki, akapity, motto
+// i hasła żyją w komponentach, które je renderują. Wyjątkiem są tytuł
+// i opis meta, bo to nie copy strony, tylko wpisy dla wyszukiwarki.
+//
+// Celowo BEZ JSX — plik importują robots.ts, sitemap.ts i blok metadata
+// w root layoucie, więc musi zostać czystym TypeScriptem.
 
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
@@ -225,22 +229,24 @@ const legal: Legal = {
 };
 
 export const site = {
-  /** Nazwa publiczna — nagłówki, tytuły, treść. */
+  /** Nazwa publiczna marki. */
   name: "Orkiestra Maxime",
   shortName: "Maxime",
-  motto: "Z pasji do muzyki",
 
   /** Podmiot prawny — stopka, regulamin, polityka prywatności,
    *  klauzule RODO, JSON-LD. */
   legalName: "Fundacja Maxime",
 
-  /** 53 znaki. Google ucina tytuły po mniej więcej 60 —
-   *  poprzednia wersja z "wydarzeń" miała 62 i się nie mieściła. */
+  /* ─── Metadane wyszukiwarkowe ───
+     To nie jest copy strony, tylko wpisy dla Google. Copy żyje
+     w komponentach. */
+
+  /** 53 znaki. Google ucina tytuły po mniej więcej 60. */
   title: "Orkiestra Maxime — oprawa muzyczna | Dąbrowa Górnicza",
   titleTemplate: "%s | Orkiestra Maxime",
 
-  /** 154 znaki, czyli w granicy tego, co Google pokazuje w wynikach.
-   *  Wszystko ważne na początku, bo koniec i tak bywa ucinany. */
+  /** 154 znaki, w granicy tego, co Google pokazuje w wynikach.
+   *  Wszystko ważne na początku, bo koniec bywa ucinany. */
   description:
     "Orkiestra symfoniczna i kameralna z Dąbrowy Górniczej. Oprawa muzyczna gal, jubileuszy firmowych, ceremonii i koncertów plenerowych na Śląsku.",
 
@@ -248,14 +254,10 @@ export const site = {
   descriptionLong:
     "Orkiestra symfoniczna i kameralna z Dąbrowy Górniczej, działająca od 2022 roku. Oprawa muzyczna gal i jubileuszy firmowych, ceremonii ślubnych, koncertów plenerowych i widowisk patriotycznych na Śląsku i w Zagłębiu. Skład od kwartetu po czterdziestu muzyków.",
 
-  /** DO WYMIANY: zdanie w stopce, widoczne na każdej podstronie.
-   *  Obecne jest grą słów z nazwą, ale nie mówi nic o tym, co robicie.
-   *  Lepszy byłby konkret: skład, repertuar albo zasięg. */
-  tagline:
-    "Odkryj z nami maksymalną jakość, maksymalne zaangażowanie oraz maksymalną radość z muzyki.",
-
   locale: "pl_PL",
   lang: "pl",
+
+  /* ─── Zasoby i kontakt ─── */
 
   /** Dopóki nie ma białego eksportu z brandbooka, invert nakłada filtr
    *  na czarne logo.svg. Po wrzuceniu /logo-white.svg: podmień src,
@@ -308,12 +310,13 @@ export const getCopyright = () =>
 
 /* ═══════════════════════════ STYL LINKÓW ═══════════════════════════ */
 
-/** JEDEN efekt linku nawigacyjnego dla całego serwisu: podkreślenie
- *  wyjeżdżające od środka plus zmiana koloru. Rozmiar tekstu ustala
- *  miejsce użycia, zachowanie jest wspólne.
+/** Jedyny wyjątek od zasady "tylko dane" w tym pliku. To prezentacja,
+ *  ale wspólna dla Navbara i Footera — przeniesienie jej do komponentów
+ *  cofnęłoby ujednolicenie efektu, o które chodziło.
  *
- *  Kolory zakładają ciemne tło — jeśli powstanie jasna sekcja
- *  z nawigacją, trzeba będzie dołożyć wariant. */
+ *  Podkreślenie wyjeżdżające od środka plus zmiana koloru.
+ *  Rozmiar tekstu ustala miejsce użycia, zachowanie jest wspólne.
+ *  Kolory zakładają ciemne tło. */
 export const navLink = {
   wrapper: "group relative inline-block transition-colors duration-300",
 

@@ -1,11 +1,11 @@
 // components/layout/Footer.tsx
 //
 // Komponent KLIENCKI — wymusza to podświetlanie bieżącej strony
-// (usePathname). Przycisk powrotu na górę wbudowany, bo i tak jesteśmy
-// po stronie klienta, więc osobny plik nic nie dawał.
+// (usePathname). Przycisk powrotu na górę wbudowany.
 //
-// Bez Sanity, bez FadeIn, bez ActiveLinks, bez SocialIcon,
-// bez CookieManagerButton. Wszystkie dane z data/site.ts.
+// Treść widoczna na ekranie (motto, zdanie opisowe, nagłówki kolumn)
+// jest wpisana tutaj. Z site.ts idą wyłącznie dane: nazwa podmiotu,
+// adres, kontakt, dane rejestrowe, trasy i profile.
 
 "use client";
 
@@ -47,9 +47,7 @@ const EVENODD: SocialPlatform[] = ["instagram", "linkedin"];
 
 /* Korekta optyczna. Siatka jest wspólna, ale znaki różnie ją wypełniają:
    Facebook to pełne koło, więc przy tej samej wysokości wygląda drobniej
-   niż ażurowe LinkedIn czy YouTube. Instagram jest punktem odniesienia —
-   wypełnia siatkę najbardziej neutralnie.
-   Wartości dobrane na oko, bo dokładnie o to tu chodzi. */
+   niż ażurowe LinkedIn czy YouTube. Instagram jest punktem odniesienia. */
 const SOCIAL_SCALE: Partial<Record<SocialPlatform, string>> = {
   facebook: "scale-125",
   patronite: "scale-110",
@@ -65,7 +63,7 @@ export default function Footer() {
         aria-hidden="true"
         className="pointer-events-none absolute -bottom-2 left-1/2 z-0 w-full -translate-x-1/2 text-center opacity-[0.03] select-none sm:-bottom-4 lg:-bottom-10"
       >
-        <span className="font-montserrat block w-full text-[20vw] leading-none font-black text-white md:text-[22vw]">
+        <span className="block w-full text-[20vw] leading-none font-black text-white md:text-[22vw]">
           MAXIME
         </span>
       </div>
@@ -89,26 +87,31 @@ export default function Footer() {
             </Link>
 
             <span className="font-youngest text-arylideYellow mb-10 block text-4xl">
-              {site.motto}
+              Z pasji do muzyki
             </span>
 
-            <p className="font-montserrat mb-8 text-sm leading-relaxed font-light text-white/60">
-              {site.tagline}
+            {/* Zdanie widoczne na każdej podstronie — jedno z niewielu
+                miejsc, gdzie Google widzi opis działalności poza stroną
+                główną. Warto, żeby niosło konkret, nie ogólnik. */}
+            <p className="mb-8 text-sm leading-relaxed font-light text-white/60">
+              Orkiestra symfoniczna i kameralna z Dąbrowy Górniczej. Gramy
+              koncerty, gale firmowe, ceremonie i wydarzenia plenerowe na Śląsku
+              i w Zagłębiu.
             </p>
 
             <div className="mb-8 flex flex-col gap-1">
-              <span className="font-montserrat mb-1 text-[0.6rem] font-bold tracking-[0.3em] text-white/40 uppercase">
+              <span className="mb-1 text-[0.6rem] font-bold tracking-[0.3em] text-white/40 uppercase">
                 Kontakt
               </span>
               <a
                 href={`mailto:${site.contact.email}`}
-                className="font-montserrat hover:text-arylideYellow text-sm font-light text-white/80 transition-colors"
+                className="hover:text-arylideYellow text-sm font-light text-white/80 transition-colors"
               >
                 {site.contact.email}
               </a>
               <a
                 href={`tel:${site.contact.phone}`}
-                className="font-montserrat hover:text-arylideYellow text-sm font-light text-white/80 transition-colors"
+                className="hover:text-arylideYellow text-sm font-light text-white/80 transition-colors"
               >
                 {site.contact.phoneDisplay}
               </a>
@@ -116,7 +119,7 @@ export default function Footer() {
 
             {/* Adres w <address> daje Google jednoznaczny sygnał NAP,
                 a instytucji wszystko, czego potrzebuje do zapytania. */}
-            <address className="font-montserrat text-xs leading-relaxed font-light text-white/40 not-italic">
+            <address className="text-xs leading-relaxed font-light text-white/40 not-italic">
               {site.legal.name}
               <br />
               {site.address.street}
@@ -142,7 +145,7 @@ export default function Footer() {
             aria-label="Menu w stopce"
             className="flex flex-col lg:col-span-3 lg:col-start-6"
           >
-            <span className="font-montserrat mb-8 block text-[0.65rem] font-bold tracking-[0.4em] text-white/30 uppercase">
+            <span className="mb-8 block text-[0.65rem] font-bold tracking-[0.4em] text-white/30 uppercase">
               Eksploruj
             </span>
             <ul className="flex flex-col items-start gap-4">
@@ -169,17 +172,17 @@ export default function Footer() {
 
           {/* ───── Kolumna 3: newsletter i socjale ───── */}
           <div className="flex flex-col lg:col-span-4">
-            <span className="font-montserrat mb-8 block text-[0.65rem] font-bold tracking-[0.4em] text-white/30 uppercase">
+            <span className="mb-8 block text-[0.65rem] font-bold tracking-[0.4em] text-white/30 uppercase">
               Newsletter
             </span>
-            <p className="font-montserrat mb-6 text-sm leading-relaxed font-light text-white/60">
+            <p className="mb-6 text-sm leading-relaxed font-light text-white/60">
               Bądź na bieżąco z nadchodzącymi wydarzeniami.
             </p>
 
             <NewsletterForm variant="dark" />
 
             <div className="mt-16">
-              <span className="font-montserrat mb-6 block text-[0.65rem] font-bold tracking-[0.4em] text-white/30 uppercase">
+              <span className="mb-6 block text-[0.65rem] font-bold tracking-[0.4em] text-white/30 uppercase">
                 Media społecznościowe
               </span>
               <ul className="flex flex-wrap gap-4">
@@ -208,6 +211,9 @@ export default function Footer() {
                             : {})}
                         />
                       </svg>
+                      {/* Tekst ukryty wizualnie zamiast aria-label:
+                          solidniejszy, bo aria-label bywa pomijany przez
+                          automatyczne tłumaczenia stron. */}
                       <span className="sr-only">{social.label}</span>
                     </a>
                   </li>
@@ -220,7 +226,7 @@ export default function Footer() {
         {/* ───── Pasek dolny ───── */}
         <div className="flex flex-col items-center justify-between gap-8 py-8 lg:flex-row lg:gap-0">
           <div className="flex flex-col items-center gap-4 lg:items-start lg:gap-2">
-            <span className="font-montserrat text-xs font-light text-white/40">
+            <span className="text-xs font-light text-white/40">
               {getCopyright()}
             </span>
             <div className="flex flex-wrap items-center justify-center gap-4 lg:justify-start">
@@ -228,7 +234,7 @@ export default function Footer() {
                 <Link
                   key={link.path}
                   href={link.path}
-                  className="font-montserrat text-[0.65rem] font-medium tracking-widest text-white/30 uppercase transition-colors hover:text-white"
+                  className="text-[0.65rem] font-medium tracking-widest text-white/30 uppercase transition-colors hover:text-white"
                 >
                   {link.name}
                 </Link>
@@ -240,7 +246,7 @@ export default function Footer() {
 
           <div className="flex items-center gap-8">
             {site.author.name && (
-              <span className="font-montserrat text-xs font-light text-white/40">
+              <span className="text-xs font-light text-white/40">
                 Wykonanie:{" "}
                 <a
                   href={site.author.url}
@@ -254,17 +260,15 @@ export default function Footer() {
             )}
 
             {/* Powrót na górę. Płynność przewijania oddana CSS-owi
-                (scroll-behavior w globals.css), dzięki czemu reguła
-                prefers-reduced-motion realnie ją wyłącza — "smooth"
-                wpisane w JS ignoruje ustawienia systemowe. */}
+                (scroll-behavior w globals.css). */}
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0 })}
               aria-label="Wróć na górę strony"
-              className="group hover:border-arylideYellow hover:bg-arylideYellow flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 transition-all duration-500"
+              className="group hover:border-arylideYellow hover:bg-arylideYellow flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 transition-colors duration-300"
             >
               <svg
-                className="group-hover:text-raisinBlack h-5 w-5 text-white transition-transform duration-500 group-hover:-translate-y-1"
+                className="group-hover:text-raisinBlack h-5 w-5 text-white transition-transform duration-300 group-hover:-translate-y-1"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
