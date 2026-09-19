@@ -23,6 +23,7 @@
    ───────────────────────────────────────────────────────────── */
 
 html {
+  background-color: var(--color-raisinBlack);
   scroll-behavior: smooth;
   /* Navbar jest fixed — bez tego kotwice typu #formularz-kontaktowy
      lądują schowane pod paskiem nawigacji. */
@@ -101,4 +102,3 @@ html {
     transform: translateY(0);
   }
 }
-

@@ -3,8 +3,8 @@
 import type { Metadata } from "next";
 
 import Hero from "@/components/home/Hero";
+import JsonLd, { websiteSchema } from "@/components/seo/JsonLd";
 import { site } from "@/data/site";
-
 // import About from "@/components/home/About";
 // import Testimonials from "@/components/home/Testimonials";
 // import LatestUpdates from "@/components/home/LatestUpdates";
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
-      {/* <main> jest w (user)/layout.tsx — tutaj go NIE MA. */}
+      <JsonLd data={websiteSchema()} />
       <Hero />
 
       {/* <About /> */}
