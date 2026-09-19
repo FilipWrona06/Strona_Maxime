@@ -1,0 +1,104 @@
+/* app/globals.css */
+@import "tailwindcss";
+
+@theme {
+  /* Kolory — dokładnie wg brandbooka */
+  --color-raisinBlack: #262626;
+  --color-philippineSilver: #b2b2b2;
+  --color-arylideYellow: #efcb6f;
+  --color-oxfordBlue: #001c48;
+  --font-montserrat: var(--font-montserrat);
+  --font-youngest: var(--font-youngest);
+
+  /* Animacje */
+  --animate-fade-in-up: fade-in-up 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-cinematic-zoom: cinematic-zoom 12s cubic-bezier(0.16, 1, 0.3, 1)
+    forwards;
+  --animate-scroll-line: scroll-line 2s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+  --animate-slide-down: slide-down 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Podstawy dokumentu
+   ───────────────────────────────────────────────────────────── */
+
+html {
+  scroll-behavior: smooth;
+  /* Navbar jest fixed — bez tego kotwice typu #formularz-kontaktowy
+     lądują schowane pod paskiem nawigacji. */
+  scroll-padding-top: 7rem;
+}
+
+/* Widoczny fokus klawiatury w kolorze marki.
+   Na ciemnym tle domyślny outline przeglądarki bywa niewidoczny.
+
+   BEZ border-radius: ta właściwość zaokrągla ELEMENT, nie obrys —
+   ustawiona tutaj prostowałaby okrągłe przyciski w chwili fokusu.
+   Obrys i tak podąża za kształtem elementu. */
+:focus-visible {
+  outline: 2px solid var(--color-arylideYellow);
+  outline-offset: 3px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Animacje
+   ───────────────────────────────────────────────────────────── */
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.98);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes cinematic-zoom {
+  0% {
+    transform: scale(1.15);
+    opacity: 0;
+    filter: blur(10px);
+  }
+  10% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scroll-line {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  40% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  40.1% {
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+@keyframes slide-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
