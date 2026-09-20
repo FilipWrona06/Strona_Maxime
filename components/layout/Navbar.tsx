@@ -6,14 +6,18 @@
 //
 // JEDEN efekt w całym serwisie: podkreślenie wyjeżdżające od środka
 // plus zmiana koloru. Rozmiar tekstu ustala miejsce użycia.
+//
+// Logo jako inline SVG (<Logo />), nie <Image>: zero żądań sieciowych,
+// kolor przez klasę tekstu zamiast filtra brightness-0 invert,
+// i koniec z ostrzeżeniem o obrazie LCP bez priority.
 
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+import Logo from "@/components/ui/Logo";
 import { isActiveLink, mainLinks, navLink, site } from "@/data/site";
 
 const isExternal = (url: string) => /^https?:\/\//.test(url);
@@ -62,8 +66,7 @@ export default function Navbar() {
   }, [isMenuOpen]);
 
   // Escape zamyka, Tab krąży wewnątrz okna.
-  // aria-modal informuje czytniki, ale NIE zatrzymuje klawiatury —
-  // bez tego Tabem wychodziło się w treść strony pod spodem.
+  // aria-modal informuje czytniki, ale NIE zatrzymuje klawiatury.
   useEffect(() => {
     if (!isMenuOpen) return;
 
@@ -110,8 +113,6 @@ export default function Navbar() {
 
   // Blokada przewijania tła pod otwartym menu.
   // Uwaga: na iOS samo overflow:hidden nie powstrzymuje gestu do końca.
-  // Jeśli okaże się to problemem, trzeba będzie zapisać scrollY
-  // i ustawić body na position:fixed z ujemnym top.
   useEffect(() => {
     if (!isMenuOpen) return;
     const previous = document.body.style.overflow;
@@ -126,8 +127,6 @@ export default function Navbar() {
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
-
-  const logoClass = site.logo.invert ? "brightness-0 invert" : "";
 
   const supportLinkProps = isExternal(site.supportUrl)
     ? { target: "_blank" as const, rel: "noopener noreferrer" }
@@ -144,20 +143,10 @@ export default function Navbar() {
               : "rounded-none border-transparent bg-transparent px-0 py-2"
           }`}
         >
-          <Link
-            href="/"
-            aria-label={`${site.name} — strona główna`}
-            className="flex shrink-0 items-center lg:mr-4 xl:mr-8"
-          >
-            {/* Bez priority: logo jest w SVG, więc next/image i tak go nie
-                optymalizuje, a wstępne pobranie konkurowałoby z plakatem
-                hero — czyli z prawdziwym elementem LCP. */}
-            <Image
-              src={site.logo.src}
-              alt={site.name}
-              width={site.logo.width}
-              height={site.logo.height}
-              className={`h-10 w-auto lg:h-10 xl:h-14 ${logoClass}`}
+          <Link href="/" className="flex shrink-0 items-center lg:mr-4 xl:mr-8">
+            <Logo
+              className="h-10 w-auto text-white lg:h-10 xl:h-14"
+              title={`${site.name} — strona główna`}
             />
           </Link>
 
@@ -238,7 +227,6 @@ export default function Navbar() {
         >
           {/* Rząd nagłówkowy: logo wyśrodkowane w szerokości panelu,
               krzyżyk wyjęty z układu i przyklejony do prawej krawędzi.
-              Dzięki relative na rzędzie oba są równo w pionie.
               Krzyżyk pierwszy w DOM, bo na niego wchodzi fokus. */}
           <div className="relative flex shrink-0 items-center justify-center">
             <button
@@ -251,14 +239,9 @@ export default function Navbar() {
               <span aria-hidden="true">✕</span>
             </button>
 
-            <Image
-              src={site.logo.src}
-              alt=""
-              aria-hidden="true"
-              width={site.logo.width}
-              height={site.logo.height}
-              className={`h-12 w-auto ${logoClass}`}
-            />
+            {/* title="" — logo dekoracyjne, nazwa jest już odczytana
+                z linku w nagłówku strony. */}
+            <Logo className="h-12 w-auto text-white" title="" />
           </div>
 
           {/* Linki i przycisk wyśrodkowane w tym, co zostaje poniżej. */}

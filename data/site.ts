@@ -258,9 +258,16 @@ export const site = {
   lang: "pl",
 
   /* ─── Zasoby i kontakt ─── */
+
+  /** UWAGA: to pole służy WYŁĄCZNIE danym strukturalnym i grafikom OG.
+   *  Na stronie logo renderuje komponent <Logo />, który wstawia je
+   *  jako inline SVG — nie pobiera tego pliku.
+   *
+   *  Wersja rastrowa, bo Google przy logo organizacji lepiej radzi
+   *  sobie z PNG niż z SVG. Czarny wariant, bo wizytówka w wynikach
+   *  ma jasne tło. */
   logo: {
-    src: "/logo-white.png",
-    invert: false,
+    src: "/logo-black.png",
     width: 900,
     height: 309,
   },

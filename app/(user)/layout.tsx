@@ -11,6 +11,7 @@
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import JsonLd, { organizationSchema } from "@/components/seo/JsonLd";
+import LogoSprite from "@/components/ui/LogoSprite";
 
 // Zgody na cookies wracają, gdy przepiszemy mechanizm od zera:
 // import CookieBanner from "@/components/cookies/CookieBanner";
@@ -27,6 +28,11 @@ export default function SiteLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="bg-raisinBlack font-montserrat selection:bg-arylideYellow selection:text-raisinBlack flex min-h-svh flex-col text-white">
+      {/* Definicja logo wstawiana RAZ na stronę. Navbar, menu mobilne
+          i stopka odwołują się do niej przez <use>, więc krzywe nie
+          powtarzają się trzykrotnie w HTML-u. */}
+      <LogoSprite />
+
       <JsonLd data={organizationSchema()} />
 
       {/* Pierwszy element w tabulacji — wymóg WCAG 2.4.1 przy stałym
@@ -44,8 +50,7 @@ export default function SiteLayout({
 
       {/* JEDYNY <main> w drzewie. Nie dodawaj drugiego w page.tsx.
           tabIndex={-1} sprawia, że skip link realnie przenosi FOKUS,
-          a nie tylko widok — bez tego użytkownik klawiatury kolejnym
-          Tabem wracał do nawigacji zamiast wejść w treść. */}
+          a nie tylko widok. */}
       <main id="tresc" tabIndex={-1} className="grow focus:outline-none">
         {children}
       </main>

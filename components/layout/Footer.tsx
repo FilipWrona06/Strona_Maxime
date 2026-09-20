@@ -5,11 +5,15 @@
 //
 // Treść widoczna na ekranie jest wpisana tutaj. Z site.ts idą wyłącznie
 // dane: nazwa podmiotu, adres, kontakt, dane rejestrowe, trasy i profile.
+//
+// Logo jako inline SVG (<Logo />), nie <Image> — patrz komentarz
+// w components/ui/Logo.tsx.
 
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import NewsletterForm from "@/components/newsletter/NewsletterForm";
 import Logo from "@/components/ui/Logo";
 import {
@@ -51,9 +55,7 @@ const SOCIAL_SCALE: Partial<Record<SocialPlatform, string>> = {
   patronite: "scale-110",
 };
 
-/** Nagłówki kolumn. Wcześniej były <span>, czyli dla czytnika ekranu
- *  i dla wyszukiwarki nie istniały — mimo że pełnią funkcję nagłówków.
- *  Kontrast podniesiony z white/30 (≈2,4:1) do white/50. */
+/** Nagłówki kolumn. Kontrast podniesiony z white/30 (≈2,4:1) do white/50. */
 const COLUMN_HEADING =
   "mb-8 block text-[0.65rem] font-bold tracking-[0.4em] text-white/50 uppercase";
 
@@ -79,12 +81,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-16 border-b border-white/10 pb-16 md:grid-cols-2 lg:grid-cols-12 lg:gap-12 lg:pb-24">
           {/* ───── Kolumna 1: marka, kontakt, dane rejestrowe ───── */}
           <div className="flex flex-col items-start md:col-span-2 lg:col-span-4">
-            <Link
-              href="/"
-              aria-label={`${site.name} — strona główna`}
-              className="mb-8 block"
-            >
-              <Logo className="h-10 w-auto text-white lg:h-12" />
+            <Link href="/" className="mb-8 block">
+              <Logo
+                className="h-10 w-auto text-white lg:h-12"
+                title={`${site.name} — strona główna`}
+              />
             </Link>
 
             <span className="font-youngest text-arylideYellow mb-10 block text-4xl">
