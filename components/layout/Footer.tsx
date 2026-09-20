@@ -3,9 +3,8 @@
 // Komponent KLIENCKI — wymusza to podświetlanie bieżącej strony
 // (usePathname). Przycisk powrotu na górę wbudowany.
 //
-// Treść widoczna na ekranie (motto, zdanie opisowe, nagłówki kolumn)
-// jest wpisana tutaj. Z site.ts idą wyłącznie dane: nazwa podmiotu,
-// adres, kontakt, dane rejestrowe, trasy i profile.
+// Treść widoczna na ekranie jest wpisana tutaj. Z site.ts idą wyłącznie
+// dane: nazwa podmiotu, adres, kontakt, dane rejestrowe, trasy i profile.
 
 "use client";
 
@@ -53,6 +52,12 @@ const SOCIAL_SCALE: Partial<Record<SocialPlatform, string>> = {
   patronite: "scale-110",
 };
 
+/** Nagłówki kolumn. Wcześniej były <span>, czyli dla czytnika ekranu
+ *  i dla wyszukiwarki nie istniały — mimo że pełnią funkcję nagłówków.
+ *  Kontrast podniesiony z white/30 (≈2,4:1) do white/50. */
+const COLUMN_HEADING =
+  "mb-8 block text-[0.65rem] font-bold tracking-[0.4em] text-white/50 uppercase";
+
 export default function Footer() {
   const pathname = usePathname();
   const logoClass = site.logo.invert ? "brightness-0 invert" : "";
@@ -63,15 +68,19 @@ export default function Footer() {
         aria-hidden="true"
         className="pointer-events-none absolute -bottom-2 left-1/2 z-0 w-full -translate-x-1/2 text-center opacity-[0.03] select-none sm:-bottom-4 lg:-bottom-10"
       >
-        <span className="block w-full text-[20vw] leading-none font-black text-white md:text-[22vw]">
+        {/* font-bold zamiast font-black — brandbook przewiduje tylko
+            Montserrat Bold i Regular. */}
+        <span className="block w-full text-[20vw] leading-none font-bold text-white md:text-[22vw]">
           MAXIME
         </span>
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-12">
-        <div className="grid grid-cols-1 gap-16 border-b border-white/10 pb-16 lg:grid-cols-12 lg:gap-12 lg:pb-24">
+        {/* md:grid-cols-2 ratuje tablety — bez tego wszystko między
+            640 a 1024 px układało się w jeden bardzo długi pasek. */}
+        <div className="grid grid-cols-1 gap-16 border-b border-white/10 pb-16 md:grid-cols-2 lg:grid-cols-12 lg:gap-12 lg:pb-24">
           {/* ───── Kolumna 1: marka, kontakt, dane rejestrowe ───── */}
-          <div className="flex flex-col items-start lg:col-span-4">
+          <div className="flex flex-col items-start md:col-span-2 lg:col-span-4">
             <Link
               href="/"
               aria-label={`${site.name} — strona główna`}
@@ -93,14 +102,14 @@ export default function Footer() {
             {/* Zdanie widoczne na każdej podstronie — jedno z niewielu
                 miejsc, gdzie Google widzi opis działalności poza stroną
                 główną. Warto, żeby niosło konkret, nie ogólnik. */}
-            <p className="mb-8 text-sm leading-relaxed font-light text-white/60">
+            <p className="mb-8 max-w-md text-sm leading-relaxed font-light text-white/70">
               Orkiestra symfoniczna i kameralna z Dąbrowy Górniczej. Gramy
               koncerty, gale firmowe, ceremonie i wydarzenia plenerowe na Śląsku
               i w Zagłębiu.
             </p>
 
             <div className="mb-8 flex flex-col gap-1">
-              <span className="mb-1 text-[0.6rem] font-bold tracking-[0.3em] text-white/40 uppercase">
+              <span className="mb-1 text-[0.6rem] font-bold tracking-[0.3em] text-white/50 uppercase">
                 Kontakt
               </span>
               <a
@@ -109,9 +118,11 @@ export default function Footer() {
               >
                 {site.contact.email}
               </a>
+              {/* Telefon większy i mocniejszy niż reszta kolumny: dla
+                  event managera to najważniejsza informacja w stopce. */}
               <a
                 href={`tel:${site.contact.phone}`}
-                className="hover:text-arylideYellow text-sm font-light text-white/80 transition-colors"
+                className="hover:text-arylideYellow text-base font-medium text-white transition-colors"
               >
                 {site.contact.phoneDisplay}
               </a>
@@ -119,7 +130,7 @@ export default function Footer() {
 
             {/* Adres w <address> daje Google jednoznaczny sygnał NAP,
                 a instytucji wszystko, czego potrzebuje do zapytania. */}
-            <address className="text-xs leading-relaxed font-light text-white/40 not-italic">
+            <address className="text-xs leading-relaxed font-light text-white/60 not-italic">
               {site.legal.name}
               <br />
               {site.address.street}
@@ -142,12 +153,12 @@ export default function Footer() {
 
           {/* ───── Kolumna 2: nawigacja ───── */}
           <nav
-            aria-label="Menu w stopce"
+            aria-labelledby="stopka-nawigacja"
             className="flex flex-col lg:col-span-3 lg:col-start-6"
           >
-            <span className="mb-8 block text-[0.65rem] font-bold tracking-[0.4em] text-white/30 uppercase">
+            <h2 id="stopka-nawigacja" className={COLUMN_HEADING}>
               Eksploruj
-            </span>
+            </h2>
             <ul className="flex flex-col items-start gap-4">
               {footerLinks.map((link) => {
                 const active = isActiveLink(pathname, link);
@@ -172,27 +183,28 @@ export default function Footer() {
 
           {/* ───── Kolumna 3: newsletter i socjale ───── */}
           <div className="flex flex-col lg:col-span-4">
-            <span className="mb-8 block text-[0.65rem] font-bold tracking-[0.4em] text-white/30 uppercase">
-              Newsletter
-            </span>
-            <p className="mb-6 text-sm leading-relaxed font-light text-white/60">
+            <h2 className={COLUMN_HEADING}>Newsletter</h2>
+            <p className="mb-6 text-sm leading-relaxed font-light text-white/70">
               Bądź na bieżąco z nadchodzącymi wydarzeniami.
             </p>
 
             <NewsletterForm variant="dark" />
 
             <div className="mt-16">
-              <span className="mb-6 block text-[0.65rem] font-bold tracking-[0.4em] text-white/30 uppercase">
+              <h2 className={`${COLUMN_HEADING} mb-6`}>
                 Media społecznościowe
-              </span>
+              </h2>
               <ul className="flex flex-wrap gap-4">
                 {socials.map((social) => (
                   <li key={social.platform}>
                     <a
                       href={social.url}
                       target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:border-arylideYellow hover:bg-arylideYellow hover:text-raisinBlack flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-all duration-300 hover:-translate-y-1"
+                      // rel="me" potwierdza, że profil należy do tego
+                      // samego podmiotu co strona — dodatkowy sygnał
+                      // tożsamości obok sameAs w danych strukturalnych.
+                      rel="me noopener noreferrer"
+                      className="hover:border-arylideYellow hover:bg-arylideYellow hover:text-raisinBlack flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-[transform,background-color,border-color,color] duration-300 hover:-translate-y-1"
                     >
                       <svg
                         className={`h-4 w-4 ${SOCIAL_SCALE[social.platform] ?? ""}`}
@@ -226,15 +238,17 @@ export default function Footer() {
         {/* ───── Pasek dolny ───── */}
         <div className="flex flex-col items-center justify-between gap-8 py-8 lg:flex-row lg:gap-0">
           <div className="flex flex-col items-center gap-4 lg:items-start lg:gap-2">
-            <span className="text-xs font-light text-white/40">
+            <span className="text-xs font-light text-white/60">
               {getCopyright()}
             </span>
             <div className="flex flex-wrap items-center justify-center gap-4 lg:justify-start">
+              {/* Kontrast podniesiony z white/30: to są linki wymagane
+                  prawnie, a były najsłabiej widocznym elementem strony. */}
               {legalLinks.map((link) => (
                 <Link
                   key={link.path}
                   href={link.path}
-                  className="text-[0.65rem] font-medium tracking-widest text-white/30 uppercase transition-colors hover:text-white"
+                  className="text-[0.65rem] font-medium tracking-widest text-white/60 uppercase transition-colors hover:text-white"
                 >
                   {link.name}
                 </Link>
@@ -246,7 +260,7 @@ export default function Footer() {
 
           <div className="flex items-center gap-8">
             {site.author.name && (
-              <span className="text-xs font-light text-white/40">
+              <span className="text-xs font-light text-white/60">
                 Wykonanie:{" "}
                 <a
                   href={site.author.url}
