@@ -263,10 +263,10 @@ export const site = {
    *  na czarne logo.svg. Po wrzuceniu /logo-white.svg: podmień src,
    *  ustaw invert na false. */
   logo: {
-    src: "/logo.svg",
-    invert: true,
-    width: 160,
-    height: 55,
+    src: "/logo-white.png",
+    invert: false,
+    width: 900,
+    height: 309,
   },
 
   contact: {
