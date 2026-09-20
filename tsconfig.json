@@ -1,27 +1,74 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+    /* ─── Cel kompilacji ─────────────────────────────────────────
+       Podniesione z ES2017 (domyślna wartość create-next-app).
+       Next 16 nie wspiera starszych silników, a niższy target każe
+       TypeScriptowi przepisywać nowoczesną składnię na zastępniki. */
+    "target": "ES2022",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+
+    /* ─── Ścisłość ───────────────────────────────────────────────
+       "strict" włącza zestaw podstawowy. Poniżej to, czego w nim
+       nie ma, a co łapie realne błędy. */
+    "strict": true,
+
+    /* Dostęp do elementu tablicy zwraca T | undefined.
+       Łapie przypadki typu items[0] na tablicy, która może być pusta. */
+    "noUncheckedIndexedAccess": true,
+
+    /* Nieużywane zmienne i parametry jako błąd. Biome też to łapie,
+       ale tutaj wywali build, a nie tylko lint. */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    /* Wymusza jawny break albo komentarz w switchu. */
+    "noFallthroughCasesInSwitch": true,
+
+    /* Każda ścieżka funkcji musi zwracać wartość. */
+    "noImplicitReturns": true,
+
+    /* Nadpisanie metody klasy bazowej wymaga słowa "override".
+       Dziś nie ma klas, ale kosztuje zero i zabezpiecza na przyszłość. */
+    "noImplicitOverride": true,
+
+    /* Rozdziela import typów od importu wartości — mniejszy bundel
+       i brak niespodzianek przy tree shakingu. Wymaga słowa "type"
+       przy importach typów; w obecnym kodzie już tak jest. */
+    "verbatimModuleSyntax": true,
+
+    /* CELOWO POMINIĘTE: noPropertyAccessFromIndexSignature.
+       Jedyne, co trafia u nas w sygnaturę indeksu, to process.env,
+       a dostęp kropką jest tam standardem w całym ekosystemie Next.
+       Flaga wymuszałaby process.env["NEXT_PUBLIC_SITE_URL"] bez
+       żadnego zysku w bezpieczeństwie typów. */
+
+    /* CELOWO POMINIĘTE: exactOptionalPropertyTypes.
+       Rozróżnia "pole nieobecne" od "pole równe undefined". Formalnie
+       poprawniejsze, ale kłóci się ze wzorcem warunkowego rozszerzania
+       obiektów, którego używamy w JsonLd. */
+
+    /* ─── Współpraca z narzędziami ───────────────────────────────── */
+    "allowJs": true,
+    /* Pomija sprawdzanie typów w node_modules. Bez tego build trwa
+       znacznie dłużej i wywala się na błędach w cudzych pakietach. */
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
+    "noEmit": true,
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+
+    "plugins": [{ "name": "next" }],
+
     "paths": {
       "@/*": ["./*"]
     }
   },
+
   "include": [
     "next-env.d.ts",
     "**/*.ts",
@@ -30,5 +77,6 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+
+  "exclude": ["node_modules", ".next", "out", "build"]
 }

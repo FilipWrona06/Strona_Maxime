@@ -82,10 +82,14 @@ export default function Navbar() {
       const items = Array.from(
         panel.querySelectorAll<HTMLElement>(FOCUSABLE),
       ).filter((el) => el.offsetParent !== null);
-      if (items.length === 0) return;
 
+      // Sprawdzenie na samych zmiennych, nie na items.length:
+      // TypeScript nie wiąże warunku o długości tablicy z późniejszym
+      // dostępem przez indeks (noUncheckedIndexedAccess).
       const first = items[0];
       const last = items[items.length - 1];
+      if (!first || !last) return;
+
       const active = document.activeElement;
 
       if (e.shiftKey && active === first) {
