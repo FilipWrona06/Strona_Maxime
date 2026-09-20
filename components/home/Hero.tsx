@@ -2,8 +2,7 @@
 //
 // Hero z wbudowanym wideo tła. Konsekwencja scalenia: cały hero jest
 // komponentem klienckim, więc H1, akapit i przyciski też trafiają
-// do bundla i podlegają hydracji. Jeśli kiedyś LCP na komórce zacznie
-// uwierać, wydzielenie samego <video> z powrotem cofa ten koszt.
+// do bundla i podlegają hydracji.
 //
 // Cała treść widoczna na ekranie jest wpisana tutaj — site.ts trzyma
 // dane o organizacji i konfigurację, nie copy.
@@ -12,6 +11,11 @@
 // Zostaje dominantą wizualną, ale H1 niesie też nazwę i miasto — bez tego
 // strona główna nie ma się o co zaczepić w wyszukiwarce, a marka "Maxime"
 // koliduje z Orkiestrą Maximus i dwiema Fundacjami Maxima.
+//
+// TYPOGRAFIA: rozmiary przez clamp, nie przez punkty rozdzielczości.
+// Wersja ze schodkami (text-[4.2rem] sm: md: lg:) przy szerokościach
+// pomiędzy progami łapała wartość spod poprzedniego progu — przy 958 px
+// nagłówek dostawał 8 rem i dotykał krawędzi ekranu.
 
 "use client";
 
@@ -68,8 +72,7 @@ export default function Hero() {
   }, [videoSrc]);
 
   // Przewinięcie do sekcji pod hero. Liczone z wysokości samego hero,
-  // więc działa niezależnie od tego, co pod nim stoi — nie wymaga
-  // kotwicy w komponencie, którego jeszcze nie ma.
+  // więc działa niezależnie od tego, co pod nim stoi.
   const scrollToContent = () => {
     const height = sectionRef.current?.offsetHeight ?? window.innerHeight;
     window.scrollTo({ top: height });
@@ -114,10 +117,15 @@ export default function Hero() {
         <div className="from-raisinBlack absolute inset-0 bg-linear-to-t via-transparent to-transparent opacity-95" />
       </div>
 
-      <div className="relative z-10 flex w-full max-w-6xl flex-col items-center justify-center px-4 pt-12 pb-28 text-center sm:py-0">
-        <h1 className="animate-fade-in-up mb-4 flex flex-col items-center">
+      <div className="relative z-10 flex w-full max-w-6xl flex-col items-center justify-center px-6 pt-24 pb-32 text-center sm:px-8 sm:pt-20 sm:pb-28">
+        <h1 className="animate-fade-in-up mb-6 flex flex-col items-center md:mb-8">
+          {/* clamp(min, płynnie, max): przy 375 px daje 2,6 rem,
+              przy 1920 px zatrzymuje się na 9,5 rem. Bez skoków.
+              leading-[0.95] zamiast 0.85 — pismo odręczne ma wysokie
+              wydłużenia i przy ciaśniejszej interlinii wchodziło
+              w podlinię pod spodem. */}
           <span
-            className="font-youngest block py-2 text-[4.2rem] leading-[0.85] text-white sm:text-[5.5rem] sm:leading-tight md:text-[8rem] lg:text-[10.5rem]"
+            className="font-youngest block text-[clamp(2.6rem,10vw,9.5rem)] leading-[0.95] text-white"
             style={{
               textShadow:
                 "0 10px 40px rgba(0,0,0,0.8), 0 0 120px rgba(255,255,255,0.15)",
@@ -125,13 +133,13 @@ export default function Hero() {
           >
             Z pasji do muzyki
           </span>
-          <span className="mt-2 block text-sm font-light tracking-[0.25em] text-white/70 sm:text-base md:mt-4">
+          <span className="mt-5 block text-[clamp(0.7rem,1.6vw,1rem)] font-light tracking-[0.25em] text-white/70 md:mt-7">
             Orkiestra Maxime, Dąbrowa Górnicza
           </span>
         </h1>
 
         <p
-          className="animate-fade-in-up mb-8 max-w-2xl text-sm leading-relaxed font-light text-white/80 opacity-0 sm:text-base md:mb-10 md:text-lg"
+          className="animate-fade-in-up mb-10 max-w-2xl text-[clamp(0.875rem,1.7vw,1.125rem)] leading-relaxed font-light text-white/80 opacity-0"
           style={{ animationDelay: "150ms" }}
         >
           Orkiestra symfoniczna i kameralna z Zagłębia. Gramy koncerty, gale,
@@ -140,14 +148,14 @@ export default function Hero() {
         </p>
 
         <div
-          className="animate-fade-in-up flex w-full max-w-[20rem] flex-col items-center justify-center gap-4 opacity-0 sm:w-auto sm:max-w-none sm:flex-row sm:gap-8"
+          className="animate-fade-in-up flex w-full max-w-[22rem] flex-col items-center justify-center gap-4 opacity-0 sm:max-w-none sm:flex-row sm:gap-6"
           style={{ animationDelay: "300ms" }}
         >
           {/* Pierwsze CTA prowadzi do oferty, czyli do jedynej strony,
               która zarabia. */}
           <Link
             href="/oferta"
-            className="group bg-arylideYellow text-raisinBlack relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full px-8 py-4 text-xs font-bold tracking-[0.2em] uppercase transition-[transform,box-shadow] duration-300 hover:scale-[1.03] hover:shadow-[0_0_30px_-10px_rgba(239,203,111,0.6)] sm:w-auto sm:px-12"
+            className="group bg-arylideYellow text-raisinBlack relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full px-8 py-4 text-center text-[0.7rem] font-bold tracking-[0.15em] uppercase transition-[transform,box-shadow] duration-300 hover:scale-[1.03] hover:shadow-[0_0_30px_-10px_rgba(239,203,111,0.6)] sm:w-auto sm:px-10 sm:text-xs sm:tracking-[0.2em] lg:px-12"
           >
             <span className="relative z-10 flex items-center gap-3">
               Zamów oprawę muzyczną
@@ -156,7 +164,7 @@ export default function Hero() {
               <svg
                 aria-hidden="true"
                 focusable="false"
-                className="h-4 w-4 transition-transform duration-300 ease-out group-hover:translate-x-2"
+                className="h-4 w-4 shrink-0 transition-transform duration-300 ease-out group-hover:translate-x-2"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -174,21 +182,20 @@ export default function Hero() {
 
           <Link
             href="/wydarzenia"
-            className="hover:text-raisinBlack flex w-full items-center justify-center rounded-full border border-white/20 bg-white/5 px-8 py-4 text-xs font-bold tracking-[0.2em] text-white uppercase backdrop-blur-xl transition-[transform,background-color,color] duration-300 hover:scale-[1.03] hover:bg-white sm:w-auto sm:px-12"
+            className="hover:text-raisinBlack flex w-full items-center justify-center rounded-full border border-white/20 bg-white/5 px-8 py-4 text-center text-[0.7rem] font-bold tracking-[0.15em] text-white uppercase backdrop-blur-xl transition-[transform,background-color,color] duration-300 hover:scale-[1.03] hover:bg-white sm:w-auto sm:px-10 sm:text-xs sm:tracking-[0.2em] lg:px-12"
           >
             Najbliższe koncerty
           </Link>
         </div>
       </div>
 
-      {/* Był to element ozdobny, choć wyglądał na klikalny —
-          strzałka i animowana kreska to typowa afordancja przewijania.
-          Teraz faktycznie przewija. */}
+      {/* Wskaźnik przewijania. Chowany na niskich ekranach, bo tam
+          nachodziłby na przyciski. */}
       <button
         type="button"
         onClick={scrollToContent}
         aria-label="Przewiń do treści strony"
-        className="animate-fade-in-up absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2 opacity-0 md:bottom-8 md:gap-3 [@media(max-height:600px)]:hidden md:[@media(max-height:800px)]:hidden lg:[@media(max-height:900px)]:hidden"
+        className="animate-fade-in-up absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2 opacity-0 md:bottom-8 md:gap-3 [@media(max-height:760px)]:hidden"
         style={{ animationDelay: "600ms" }}
       >
         <span
