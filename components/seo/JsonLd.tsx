@@ -65,9 +65,11 @@ export function organizationSchema() {
     "@id": ORG_ID,
 
     /* ─── Tożsamość ─── */
+    // Nazwa główna to podmiot prowadzący; nazwa zespołu i skrót
+    // jako warianty. Google wybiera stąd etykietę encji.
     name: site.name,
     legalName: site.legalName,
-    alternateName: site.shortName,
+    alternateName: [site.ensembleName, site.shortName],
     // Motto z brandbooka. Wpisane wprost, bo site.ts trzyma dane,
     // nie treść — a slogan jest tu faktem o marce, nie copy strony.
     slogan: "Z pasji do muzyki",
@@ -248,7 +250,7 @@ export function websiteSchema() {
     "@id": SITE_ID,
     url: siteUrl,
     name: site.name,
-    alternateName: site.shortName,
+    alternateName: [site.ensembleName, site.shortName],
     description: site.descriptionLong,
     inLanguage: site.lang,
     publisher: orgRef,

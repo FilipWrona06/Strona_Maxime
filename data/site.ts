@@ -229,30 +229,40 @@ const legal: Legal = {
 };
 
 export const site = {
-  /** Nazwa publiczna marki. */
-  name: "Orkiestra Maxime",
+  /** Nazwa główna: podmiot prowadzący. Ona idzie na pierwsze miejsce
+   *  w tytułach, danych strukturalnych i etykietach. */
+  name: "Fundacja Maxime",
+
+  /** Nazwa zespołu. Druga w kolejności, ale to ona niesie frazę
+   *  usługową — nikt nie szuka "fundacji", gdy potrzebuje orkiestry
+   *  na galę, więc słowo "orkiestra" musi pojawiać się wcześnie
+   *  w każdym tytule i opisie. */
+  ensembleName: "Orkiestra Maxime",
+
   shortName: "Maxime",
 
   /** Podmiot prawny — stopka, regulamin, polityka prywatności,
-   *  klauzule RODO, JSON-LD. */
+   *  klauzule RODO, JSON-LD. Tożsamy z name. */
   legalName: "Fundacja Maxime",
 
   /* ─── Metadane wyszukiwarkowe ───
      To nie jest copy strony, tylko wpisy dla Google. Copy żyje
      w komponentach. */
 
-  /** 53 znaki. Google ucina tytuły po mniej więcej 60. */
-  title: "Orkiestra Maxime — oprawa muzyczna | Dąbrowa Górnicza",
-  titleTemplate: "%s | Orkiestra Maxime",
+  /** 57 znaków. Google ucina tytuły po mniej więcej 60.
+   *  Fundacja na pierwszym miejscu, ale "orkiestra" zaraz po niej —
+   *  to jest słowo, które ludzie realnie wpisują. */
+  title: "Fundacja Maxime — orkiestra symfoniczna | Dąbrowa Górnicza",
+  titleTemplate: "%s | Fundacja Maxime",
 
   /** 154 znaki, w granicy tego, co Google pokazuje w wynikach.
    *  Wszystko ważne na początku, bo koniec bywa ucinany. */
   description:
-    "Orkiestra symfoniczna i kameralna z Dąbrowy Górniczej. Oprawa muzyczna gal, jubileuszy firmowych, ceremonii i koncertów plenerowych na Śląsku.",
+    "Fundacja Maxime — orkiestra symfoniczna i kameralna z Dąbrowy Górniczej. Oprawa muzyczna gal, jubileuszy firmowych, ceremonii i koncertów plenerowych.",
 
   /** Pełna wersja do JSON-LD, gdzie nie ma limitu długości. */
   descriptionLong:
-    "Orkiestra symfoniczna i kameralna z Dąbrowy Górniczej, działająca od 2022 roku. Oprawa muzyczna gal i jubileuszy firmowych, ceremonii ślubnych, koncertów plenerowych i widowisk patriotycznych na Śląsku i w Zagłębiu. Skład od kwartetu po czterdziestu muzyków.",
+    "Fundacja Maxime prowadzi Orkiestrę Maxime — orkiestrę symfoniczną i kameralną z Dąbrowy Górniczej, działającą od 2022 roku. Oprawa muzyczna gal i jubileuszy firmowych, ceremonii ślubnych, koncertów plenerowych i widowisk patriotycznych na Śląsku i w Zagłębiu. Skład od kwartetu po czterdziestu muzyków.",
 
   locale: "pl_PL",
   lang: "pl",
@@ -296,8 +306,13 @@ export const site = {
    *  Schema opisuje zespół, a ten gra od 2022. */
   foundingDate: "2022",
 
-  /** Podpis wykonawcy w stopce. Pusta nazwa = nie renderuje się. */
-  author: { name: "", url: "" },
+  /** Podpis wykonawcy w stopce. Pusta nazwa = nie renderuje się wcale.
+   *  Pusty url = podpis bez odnośnika, sam tekst. */
+  author: {
+    name: "Filip Wrona",
+    // DO UZUPEŁNIENIA: portfolio, GitHub albo LinkedIn.
+    url: "",
+  },
 
   /** Cel przycisku "Wesprzyj nas" — Patronite.
    *  Navbar sam wykryje adres zewnętrzny i doda target="_blank".

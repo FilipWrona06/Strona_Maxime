@@ -6,8 +6,8 @@
 // Treść widoczna na ekranie jest wpisana tutaj. Z site.ts idą wyłącznie
 // dane: nazwa podmiotu, adres, kontakt, dane rejestrowe, trasy i profile.
 //
-// Logo jako inline SVG (<Logo />), nie <Image> — patrz komentarz
-// w components/ui/Logo.tsx.
+// Logo jako inline SVG (<Logo />) — patrz komentarz
+// w components/ui/LogoSprite.tsx.
 
 "use client";
 
@@ -81,11 +81,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-16 border-b border-white/10 pb-16 md:grid-cols-2 lg:grid-cols-12 lg:gap-12 lg:pb-24">
           {/* ───── Kolumna 1: marka, kontakt, dane rejestrowe ───── */}
           <div className="flex flex-col items-start md:col-span-2 lg:col-span-4">
-            <Link href="/" className="mb-8 block">
-              <Logo
-                className="h-10 w-auto text-white lg:h-12"
-                title={`${site.name} — strona główna`}
-              />
+            <Link
+              href="/"
+              aria-label={`${site.name} — strona główna`}
+              className="mb-8 block"
+            >
+              {/* Dekoracyjne — nazwę niesie aria-label linku. */}
+              <Logo className="h-10 w-auto text-white lg:h-12" />
             </Link>
 
             <span className="font-youngest text-arylideYellow mb-10 block text-4xl">
@@ -96,9 +98,9 @@ export default function Footer() {
                 miejsc, gdzie Google widzi opis działalności poza stroną
                 główną. Warto, żeby niosło konkret, nie ogólnik. */}
             <p className="mb-8 max-w-md text-sm leading-relaxed font-light text-white/70">
-              Orkiestra symfoniczna i kameralna z Dąbrowy Górniczej. Gramy
-              koncerty, gale firmowe, ceremonie i wydarzenia plenerowe na Śląsku
-              i w Zagłębiu.
+              Fundacja Maxime prowadzi Orkiestrę Maxime — zespół symfoniczny i
+              kameralny z Dąbrowy Górniczej. Gramy koncerty, gale firmowe,
+              ceremonie i wydarzenia plenerowe na Śląsku i w Zagłębiu.
             </p>
 
             <div className="mb-8 flex flex-col gap-1">
@@ -252,17 +254,27 @@ export default function Footer() {
           </div>
 
           <div className="flex items-center gap-8">
+            {/* Podpis wykonawcy. Etykieta rozstrzelonymi wersalikami jak
+                nagłówki kolumn wyżej, nazwisko normalnym pismem — dzięki
+                temu wpisuje się w rytm stopki, a nie konkuruje z treścią
+                klienta. Bez adresu renderuje się sam tekst, bez linku. */}
             {site.author.name && (
-              <span className="text-xs font-light text-white/60">
-                Wykonanie:{" "}
-                <a
-                  href={site.author.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-arylideYellow font-medium text-white transition-colors"
-                >
-                  {site.author.name}
-                </a>
+              <span className="flex items-center gap-2 text-xs font-light text-white/50">
+                <span className="text-[0.6rem] font-bold tracking-[0.25em] text-white/40 uppercase">
+                  Realizacja
+                </span>
+                {site.author.url ? (
+                  <a
+                    href={site.author.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-arylideYellow text-white/80 underline-offset-4 transition-colors hover:underline"
+                  >
+                    {site.author.name}
+                  </a>
+                ) : (
+                  <span className="text-white/80">{site.author.name}</span>
+                )}
               </span>
             )}
 

@@ -134,7 +134,7 @@ export default function Hero() {
             Z pasji do muzyki
           </span>
           <span className="mt-5 block text-[clamp(0.7rem,1.6vw,1rem)] font-light tracking-[0.25em] text-white/70 md:mt-7">
-            Orkiestra Maxime, Dąbrowa Górnicza
+            Fundacja Maxime · Orkiestra Maxime
           </span>
         </h1>
 
@@ -142,9 +142,9 @@ export default function Hero() {
           className="animate-fade-in-up mb-10 max-w-2xl text-[clamp(0.875rem,1.7vw,1.125rem)] leading-relaxed font-light text-white/80 opacity-0"
           style={{ animationDelay: "150ms" }}
         >
-          Orkiestra symfoniczna i kameralna z Zagłębia. Gramy koncerty, gale,
-          jubileusze firmowe i wydarzenia plenerowe — w składzie od kwartetu po
-          czterdziestu muzyków.
+          Orkiestra symfoniczna i kameralna z Dąbrowy Górniczej. Gramy koncerty,
+          gale, jubileusze firmowe i wydarzenia plenerowe — w składzie od
+          kwartetu po czterdziestu muzyków.
         </p>
 
         <div
