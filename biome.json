@@ -9,7 +9,7 @@
 
   "files": {
     "ignoreUnknown": false,
-    "includes": ["**", "!public", "!.next", "!node_modules", "!pnpm-lock.yaml"]
+    "includes": ["**", "!public", "!pnpm-lock.yaml", "!**/*.svg"]
   },
 
   "formatter": {

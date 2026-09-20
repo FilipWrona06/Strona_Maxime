@@ -8,11 +8,10 @@
 
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
 import NewsletterForm from "@/components/newsletter/NewsletterForm";
+import Logo from "@/components/ui/Logo";
 import {
   footerLinks,
   getCopyright,
@@ -60,7 +59,6 @@ const COLUMN_HEADING =
 
 export default function Footer() {
   const pathname = usePathname();
-  const logoClass = site.logo.invert ? "brightness-0 invert" : "";
 
   return (
     <footer className="bg-raisinBlack relative z-50 w-full overflow-hidden pt-24 lg:pt-32">
@@ -86,13 +84,7 @@ export default function Footer() {
               aria-label={`${site.name} — strona główna`}
               className="mb-8 block"
             >
-              <Image
-                src={site.logo.src}
-                alt={site.name}
-                width={site.logo.width}
-                height={site.logo.height}
-                className={`h-10 w-auto lg:h-12 ${logoClass}`}
-              />
+              <Logo className="h-10 w-auto text-white lg:h-12" />
             </Link>
 
             <span className="font-youngest text-arylideYellow mb-10 block text-4xl">

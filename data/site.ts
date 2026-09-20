@@ -258,10 +258,6 @@ export const site = {
   lang: "pl",
 
   /* ─── Zasoby i kontakt ─── */
-
-  /** Dopóki nie ma białego eksportu z brandbooka, invert nakłada filtr
-   *  na czarne logo.svg. Po wrzuceniu /logo-white.svg: podmień src,
-   *  ustaw invert na false. */
   logo: {
     src: "/logo-white.png",
     invert: false,
