@@ -7,6 +7,8 @@
   --color-philippineSilver: #b2b2b2;
   --color-arylideYellow: #efcb6f;
   --color-oxfordBlue: #001c48;
+
+  /* Fonty */
   --font-montserrat: var(--font-montserrat);
   --font-youngest: var(--font-youngest);
 
@@ -23,26 +25,75 @@
    ───────────────────────────────────────────────────────────── */
 
 html {
-  background-color: var(--color-raisinBlack);
   scroll-behavior: smooth;
   /* Navbar jest fixed — bez tego kotwice typu #formularz-kontaktowy
      lądują schowane pod paskiem nawigacji. */
   scroll-padding-top: 7rem;
+  /* Tło na dokumencie, nie tylko na wrapperze: bez tego przy
+     przewinięciu poza zakres na iOS i w ułamku sekundy przed
+     wczytaniem CSS widać domyślną biel przeglądarki. */
+  background-color: var(--color-raisinBlack);
 }
 
 /* Widoczny fokus klawiatury w kolorze marki.
-   Na ciemnym tle domyślny outline przeglądarki bywa niewidoczny.
-
    BEZ border-radius: ta właściwość zaokrągla ELEMENT, nie obrys —
-   ustawiona tutaj prostowałaby okrągłe przyciski w chwili fokusu.
-   Obrys i tak podąża za kształtem elementu. */
+   ustawiona tutaj prostowałaby okrągłe przyciski w chwili fokusu. */
 :focus-visible {
   outline: 2px solid var(--color-arylideYellow);
   outline-offset: 3px;
 }
 
 /* ─────────────────────────────────────────────────────────────
-   Animacje
+   Wejścia sekcji sterowane przewijaniem
+
+   Zastępuje skasowany komponent FadeIn: zero JavaScriptu, zero
+   IntersectionObserver, zero stanu w Reakcie. Przeglądarka sama
+   wiąże postęp animacji z pozycją elementu w kadrze.
+
+   Degradacja jest bezpieczna z definicji — tam, gdzie
+   animation-timeline nie działa, reguła w ogóle się nie stosuje
+   i treść jest po prostu widoczna od razu. To odwrotność starego
+   podejścia, gdzie element startował z opacity-0 i bez JS zostawał
+   niewidoczny na zawsze.
+
+   Użycie:  <section className="reveal">…</section>
+            <div className="reveal reveal-delay">…</div>
+   ───────────────────────────────────────────────────────────── */
+
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    /* Start, gdy element wsunie się w kadr na 10% wysokości,
+       koniec, gdy pokryje 35% — dzięki temu treść jest w pełni
+       widoczna zanim użytkownik do niej dojdzie wzrokiem. */
+    animation-range: entry 10% cover 35%;
+  }
+
+  /* Do drugiego, trzeciego elementu w sekcji — lekkie opóźnienie
+     daje efekt kaskady bez przeliczania indeksów w JS. */
+  .reveal-delay {
+    animation-range: entry 16% cover 45%;
+  }
+
+  .reveal-delay-2 {
+    animation-range: entry 22% cover 55%;
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(2.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Animacje wejścia strony
    ───────────────────────────────────────────────────────────── */
 
 @keyframes fade-in-up {

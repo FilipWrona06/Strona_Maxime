@@ -326,6 +326,20 @@ export const site = {
 export const getCopyright = () =>
   `© ${new Date().getFullYear()} ${site.legalName}. Wszelkie prawa zastrzeżone.`;
 
+/* ═══════════════════════════ ETYKIETY ═══════════════════════════ */
+
+/** DWA warianty drobnej typografii na cały serwis, zamiast pięciu
+ *  wariantów rozstrzelenia dobieranych na oko. Wcześniej w samej
+ *  stopce było tracking 0.4em, 0.3em, 0.25em, 0.2em i "widest" —
+ *  pięć odmian tej samej rzeczy sprawiało, że różnice wyglądały
+ *  na przypadkowe, a nie na hierarchię. */
+export const label = {
+  /** Nagłówki kolumn i sekcji. */
+  strong: "text-[0.65rem] font-bold tracking-[0.35em] uppercase",
+  /** Podpisy wewnątrz bloków, stopka prawna, drobne oznaczenia. */
+  soft: "text-[0.6rem] font-bold tracking-[0.2em] uppercase",
+};
+
 /* ═══════════════════════════ STYL LINKÓW ═══════════════════════════ */
 
 /** Jedyny wyjątek od zasady "tylko dane" w tym pliku. To prezentacja,

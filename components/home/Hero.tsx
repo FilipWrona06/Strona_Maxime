@@ -148,14 +148,17 @@ export default function Hero() {
         </p>
 
         <div
-          className="animate-fade-in-up flex w-full max-w-[22rem] flex-col items-center justify-center gap-4 opacity-0 sm:max-w-none sm:flex-row sm:gap-6"
+          className="animate-fade-in-up flex w-full max-w-[22rem] flex-col items-center justify-center gap-4 opacity-0 sm:max-w-none sm:flex-row sm:items-center sm:gap-5"
           style={{ animationDelay: "300ms" }}
         >
-          {/* Pierwsze CTA prowadzi do oferty, czyli do jedynej strony,
-              która zarabia. */}
+          {/* CTA główne. Prowadzi do oferty, czyli do jedynej strony,
+              która zarabia — i jest wyraźnie większe od drugiego:
+              wyższe wypełnienie, mocniejsze rozstrzelenie, cień.
+              Wcześniej oba miały tę samą wagę, więc oko traktowało je
+              jak równorzędny wybór, zamiast widzieć podpowiedź. */}
           <Link
             href="/oferta"
-            className="group bg-arylideYellow text-raisinBlack relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full px-8 py-4 text-center text-[0.7rem] font-bold tracking-[0.15em] uppercase transition-[transform,box-shadow] duration-300 hover:scale-[1.03] hover:shadow-[0_0_30px_-10px_rgba(239,203,111,0.6)] sm:w-auto sm:px-10 sm:text-xs sm:tracking-[0.2em] lg:px-12"
+            className="group bg-arylideYellow text-raisinBlack relative flex w-full items-center justify-center gap-4 overflow-hidden rounded-full px-8 py-5 text-center text-[0.72rem] font-bold tracking-[0.18em] uppercase shadow-[0_10px_40px_-15px_rgba(239,203,111,0.5)] transition-[transform,box-shadow] duration-300 hover:scale-[1.03] hover:shadow-[0_0_40px_-8px_rgba(239,203,111,0.7)] sm:w-auto sm:px-11 sm:text-[0.8rem] sm:tracking-[0.22em] lg:px-14"
           >
             <span className="relative z-10 flex items-center gap-3">
               Zamów oprawę muzyczną
@@ -180,9 +183,11 @@ export default function Hero() {
             <div className="absolute inset-0 z-0 h-full w-full -translate-x-full rounded-full bg-white/30 transition-transform duration-500 ease-out group-hover:translate-x-0" />
           </Link>
 
+          {/* CTA drugorzędne: niższe, lżejsze, bez cienia.
+              Świadomie ustępuje pierwszemu. */}
           <Link
             href="/wydarzenia"
-            className="hover:text-raisinBlack flex w-full items-center justify-center rounded-full border border-white/20 bg-white/5 px-8 py-4 text-center text-[0.7rem] font-bold tracking-[0.15em] text-white uppercase backdrop-blur-xl transition-[transform,background-color,color] duration-300 hover:scale-[1.03] hover:bg-white sm:w-auto sm:px-10 sm:text-xs sm:tracking-[0.2em] lg:px-12"
+            className="hover:text-raisinBlack flex w-full items-center justify-center rounded-full border border-white/20 bg-white/5 px-8 py-4 text-center text-[0.65rem] font-medium tracking-[0.15em] text-white/90 uppercase backdrop-blur-xl transition-[transform,background-color,color] duration-300 hover:scale-[1.02] hover:bg-white sm:w-auto sm:px-9 sm:text-[0.7rem]"
           >
             Najbliższe koncerty
           </Link>

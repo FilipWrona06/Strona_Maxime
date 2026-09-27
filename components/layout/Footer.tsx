@@ -20,6 +20,7 @@ import {
   footerLinks,
   getCopyright,
   isActiveLink,
+  label,
   legalLinks,
   navLink,
   type SocialPlatform,
@@ -56,23 +57,35 @@ const SOCIAL_SCALE: Partial<Record<SocialPlatform, string>> = {
 };
 
 /** Nagłówki kolumn. Kontrast podniesiony z white/30 (≈2,4:1) do white/50. */
-const COLUMN_HEADING =
-  "mb-8 block text-[0.65rem] font-bold tracking-[0.4em] text-white/50 uppercase";
+const COLUMN_HEADING = `mb-8 block ${label.strong} text-white/50`;
 
 export default function Footer() {
   const pathname = usePathname();
 
   return (
     <footer className="bg-raisinBlack relative z-50 w-full overflow-hidden pt-24 lg:pt-32">
+      {/* Ozdobnik tła: wiolonczela z sygnetem "M" — asset przewidziany
+          w brandbooku wprost do wypełniania pustej przestrzeni.
+          Zastąpił ogromne słowo "MAXIME" Montserratem, czyli rozwiązanie
+          bez związku z tożsamością marki.
+
+          Wpuszczony z prawej krawędzi i częściowo przycięty, żeby czytał
+          się jako faktura, a nie jako ilustracja. Ukryty poniżej lg,
+          bo na wąskich ekranach wchodziłby pod treść.
+
+          brightness-0 invert rozjaśnia oryginalny, prawie czarny asset.
+          Przy kryciu czterech procent jakość krawędzi nie ma znaczenia —
+          w przeciwieństwie do logo, gdzie ten sam filtr był problemem. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-2 left-1/2 z-0 w-full -translate-x-1/2 text-center opacity-[0.03] select-none sm:-bottom-4 lg:-bottom-10"
+        className="pointer-events-none absolute -right-16 bottom-0 z-0 hidden h-[115%] select-none lg:block xl:-right-8"
       >
-        {/* font-bold zamiast font-black — brandbook przewiduje tylko
-            Montserrat Bold i Regular. */}
-        <span className="block w-full text-[20vw] leading-none font-bold text-white md:text-[22vw]">
-          MAXIME
-        </span>
+        {/* biome-ignore lint/performance/noImgElement: next/image nie optymalizuje SVG */}
+        <img
+          src="/Asset-1.svg"
+          alt=""
+          className="h-full w-auto opacity-[0.05] brightness-0 invert"
+        />
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-12">
@@ -104,7 +117,7 @@ export default function Footer() {
             </p>
 
             <div className="mb-8 flex flex-col gap-1">
-              <span className="mb-1 text-[0.6rem] font-bold tracking-[0.3em] text-white/50 uppercase">
+              <span className={`mb-1 ${label.soft} text-white/50`}>
                 Kontakt
               </span>
               <a
@@ -243,7 +256,7 @@ export default function Footer() {
                 <Link
                   key={link.path}
                   href={link.path}
-                  className="text-[0.65rem] font-medium tracking-widest text-white/60 uppercase transition-colors hover:text-white"
+                  className={`${label.soft} font-medium text-white/60 transition-colors hover:text-white`}
                 >
                   {link.name}
                 </Link>
@@ -260,7 +273,7 @@ export default function Footer() {
                 klienta. Bez adresu renderuje się sam tekst, bez linku. */}
             {site.author.name && (
               <span className="flex items-center gap-2 text-xs font-light text-white/50">
-                <span className="text-[0.6rem] font-bold tracking-[0.25em] text-white/40 uppercase">
+                <span className={`${label.soft} text-white/40`}>
                   Realizacja
                 </span>
                 {site.author.url ? (
